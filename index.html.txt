@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spaced Repetition Vocab App</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-light: #64748b;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 20px; max-width: 800px; margin: 0 auto; }
+
+        h1, h2 { text-align: center; margin-bottom: 20px; color: var(--primary); }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .tab-btn { padding: 10px 20px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; border-radius: 8px; font-weight: 600; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .section { display: none; background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .section.active { display: block; }
+
+        /* Form */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-light); }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        button.btn-submit { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        button.btn-submit:hover { background: var(--primary-hover); }
+
+        /* Review Card */
+        .card { border: 1px solid var(--border); border-radius: 10px; padding: 25px; text-align: center; background: #fff; }
+        .word { font-size: 28px; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
+        .meaning-box { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); }
+        .context { font-style: italic; color: var(--text-light); margin-top: 5px; }
+        .action-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+        .btn-action { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; }
+        .btn-easy { background: var(--success); }
+        .btn-hard { background: var(--danger); }
+        .btn-show { background: var(--primary); width: 100%; }
+
+        /* List Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        th { color: var(--text-light); }
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; background: #e0e7ff; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <h1>🧠 Spaced Repetition Vocab</h1>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('reviewTab')">Ôn tập hôm nay (<span id="dueCount">0</span>)</button>
+        <button class="tab-btn" onclick="switchTab('addTab')">+ Thêm từ mới</button>
+        <button class="tab-btn" onclick="switchTab('listTab')">Tất cả từ</button>
+    </div>
+
+    <!-- TAB 1: ÔN TẬP -->
+    <div id="reviewTab" class="section active">
+        <div id="reviewContainer">
+            <!-- Render bài học bằng Javascript -->
+        </div>
+    </div>
+
+    <!-- TAB 2: THÊM TỪ -->
+    <div id="addTab" class="section">
+        <h2>Thêm từ vựng mới</h2>
+        <form id="addForm">
+            <div class="form-group">
+                <label>Từ vựng (Word / Phrase):</label>
+                <input type="text" id="wordInput" required placeholder="ví dụ: Accommodate">
+            </div>
+            <div class="form-group">
+                <label>Định nghĩa / Nghĩa tiếng Việt:</label>
+                <input type="text" id="meaningInput" required placeholder="ví dụ: Đáp ứng nhu cầu, cung cấp chỗ ở">
+            </div>
+            <div class="form-group">
+                <label>Ngữ cảnh / Ví dụ / Collocation:</label>
+                <textarea id="contextInput" rows="3" placeholder="ví dụ: accommodate clients' needs"></textarea>
+            </div>
+            <button type="submit" class="btn-submit">Lưu từ này</button>
+        </form>
+    </div>
+
+    <!-- TAB 3: DANH SÁCH -->
+    <div id="listTab" class="section">
+        <h2>Danh sách từ đã lưu</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Từ vựng</th>
+                    <th>Nghĩa</th>
+                    <th>Cấp độ</th>
+                    <th>Ngày ôn tiếp</th>
+                </tr>
+            </thead>
+            <tbody id="vocabTableBody">
+                <!-- Render danh sách -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Kho khoảng cách ngày ôn tập (Spaced Repetition Intervals in Days)
+        const INTERVALS = [1, 3, 7, 14, 30, 60];
+
+        // Lấy dữ liệu từ localStorage
+        let vocabList = JSON.parse(localStorage.getItem('my_vocab_list')) || [];
+
+        // Chuyển Tab
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+
+            if(tabId === 'reviewTab') renderReview();
+            if(tabId === 'listTab') renderList();
+        }
+
+        // Lưu dữ liệu
+        function saveData() {
+            localStorage.setItem('my_vocab_list', JSON.stringify(vocabList));
+            updateDueCount();
+        }
+
+        // Đếm số từ đến hạn ôn hôm nay
+        function updateDueCount() {
+            const today = new Date().toISOString().split('T')[0];
+            const dueWords = vocabList.filter(item => item.nextReview <= today);
+            document.getElementById('dueCount').innerText = dueWords.length;
+        }
+
+        // Thêm từ mới
+        document.getElementById('addForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const today = new Date().toISOString().split('T')[0];
+            const newWord = {
+                id: Date.now(),
+                word: document.getElementById('wordInput').value.trim(),
+                meaning: document.getElementById('meaningInput').value.trim(),
+                context: document.getElementById('contextInput').value.trim(),
+                level: 0, // Cấp độ ghi nhớ
+                nextReview: today // Ôn ngay lập tức hoặc ngày mai
+            };
+
+            vocabList.push(newWord);
+            saveData();
+            e.target.reset();
+            alert('Đã lưu từ thành công!');
+        });
+
+        // Render màn hình Ôn Tập
+        function renderReview() {
+            const today = new Date().toISOString().split('T')[0];
+            const dueWords = vocabList.filter(item => item.nextReview <= today);
+            const container = document.getElementById('reviewContainer');
+
+            if (dueWords.length === 0) {
+                container.innerHTML = `<h3>🎉 Tuyệt vời! Bạn đã hoàn thành tất cả từ cần ôn hôm nay.</h3>`;
+                return;
+            }
+
+            const current = dueWords[0];
+            container.innerHTML = `
+                <div class="card">
+                    <div class="word">${current.word}</div>
+                    <button class="btn-action btn-show" onclick="showMeaning()">Xem nghĩa & Ngữ cảnh</button>
+
+                    <div id="meaningBox" class="meaning-box">
+                        <h3>${current.meaning}</h3>
+                        <p class="context">${current.context ? '💡 Ngữ cảnh: ' + current.context : ''}</p>
+                        
+                        <div class="action-btns">
+                            <button class="btn-action btn-hard" onclick="processReview(${current.id}, false)">❌ Quên rồi (Học lại)</button>
+                            <button class="btn-action btn-easy" onclick="processReview(${current.id}, true)">✅ Thuộc rồi (+Gia tăng lịch)</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showMeaning() {
+            document.getElementById('meaningBox').style.display = 'block';
+            document.querySelector('.btn-show').style.display = 'none';
+        }
+
+        // Xử lý thuật toán Spaced Repetition khi bấm thuộc/quên
+        function processReview(id, isRemembered) {
+            const item = vocabList.find(v => v.id === id);
+            const today = new Date();
+
+            if (isRemembered) {
+                item.level = Math.min(item.level + 1, INTERVALS.length - 1);
+            } else {
+                item.level = 0; // Nếu quên, reset về cấp độ 0
+            }
+
+            // Tính ngày tiếp theo
+            const daysToAdd = INTERVALS[item.level];
+            today.setDate(today.getDate() + daysToAdd);
+            item.nextReview = today.toISOString().split('T')[0];
+
+            saveData();
+            renderReview();
+        }
+
+        // Render Danh sách
+        function renderList() {
+            const tbody = document.getElementById('vocabTableBody');
+            tbody.innerHTML = vocabList.map(item => `
+                <tr>
+                    <td><strong>${item.word}</strong></td>
+                    <td>${item.meaning}</td>
+                    <td><span class="badge">Level ${item.level}</span></td>
+                    <td>${item.nextReview}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Khởi chạy ban đầu
+        updateDueCount();
+        renderReview();
+    </script>
+</body>
+</html>
