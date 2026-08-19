@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spaced Repetition Vocab App - Plant & Learn</title>
-    <!-- Google Identity Services Library -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root {
             --bg-dark: #1A2421;
@@ -83,19 +81,19 @@
             font-weight: bold;
         }
 
-        .btn-logout {
+        .btn-action-sm {
             background: transparent;
-            border: 1px solid var(--danger);
-            color: var(--danger);
+            border: 1px solid var(--yellow-accent);
+            color: var(--yellow-accent);
             padding: 4px 10px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
         }
 
-        .btn-logout:hover {
-            background: var(--danger);
-            color: white;
+        .btn-action-sm:hover {
+            background: var(--yellow-accent);
+            color: var(--bg-dark);
         }
 
         /* NAV TABS */
@@ -455,31 +453,21 @@
             🌱 Plant & Learn Vocab
         </div>
         <div class="user-profile">
-            <!-- Google Sign-In Container -->
-            <div id="g_id_onload"
-                 data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-                 data-callback="handleCredentialResponse"
-                 data-auto_prompt="false">
-            </div>
-            <div id="googleBtnContainer">
-                <div class="g_id_signin" data-type="standard"></div>
-            </div>
-
-            <!-- Profile status when logged in -->
-            <div id="userInfo" class="user-info" style="display: none;">
+            <!-- Local User Info Container -->
+            <div id="userInfo" class="user-info">
                 <div id="userAvatar" class="user-avatar">U</div>
-                <span id="userName" style="font-size: 14px; font-weight: 600;">Guest</span>
-                <button class="btn-logout" onclick="logoutGoogle()">Đăng xuất</button>
+                <span id="userName" style="font-size: 14px; font-weight: 600;">Học viên</span>
+                <button class="btn-action-sm" onclick="changeUserName()">Đổi tên</button>
             </div>
         </div>
     </header>
 
     <!-- NAVIGATION TABS -->
     <nav>
-        <button class="nav-btn active" onclick="switchTab('vocabTab')">📖 Kho từ vựng</button>
-        <button class="nav-btn" onclick="switchTab('addTab')">➕ Thêm từ mới</button>
-        <button class="nav-btn" onclick="switchTab('learnTab')">🎯 Learn (Luyện tập)</button>
-        <button class="nav-btn" onclick="switchTab('reviewTab')">⏰ Cần ôn tập (<span id="reviewBadge">0</span>)</button>
+        <button class="nav-btn active" onclick="switchTab('vocabTab', event)">📖 Kho từ vựng</button>
+        <button class="nav-btn" onclick="switchTab('addTab', event)">➕ Thêm từ mới</button>
+        <button class="nav-btn" onclick="switchTab('learnTab', event)">🎯 Learn (Luyện tập)</button>
+        <button class="nav-btn" onclick="switchTab('reviewTab', event)">⏰ Cần ôn tập (<span id="reviewBadge">0</span>)</button>
     </nav>
 
     <!-- MAIN CONTENT AREA -->
@@ -569,12 +557,12 @@
         <div id="learnTab" class="tab-content">
             <h2>🎯 Luyện tập ghi nhớ (Learn Mode)</h2>
             <div class="exercise-selector">
-                <button class="ex-btn active" onclick="setExerciseMode('flashcard')">🃏 Flashcard</button>
-                <button class="ex-btn" onclick="setExerciseMode('quiz')">❓ Trắc nghiệm 4 đáp án</button>
-                <button class="ex-btn" onclick="setExerciseMode('spelling')">✍️ Gõ chính tả</button>
-                <button class="ex-btn" onclick="setExerciseMode('match')">🧩 Nối từ (Match)</button>
-                <button class="ex-btn" onclick="setExerciseMode('fillBlank')">📝 Fill in blanks</button>
-                <button class="ex-btn" onclick="setExerciseMode('errorCorrection')">🛠️ Sửa lỗi sai</button>
+                <button class="ex-btn active" onclick="setExerciseMode('flashcard', event)">🃏 Flashcard</button>
+                <button class="ex-btn" onclick="setExerciseMode('quiz', event)">❓ Trắc nghiệm 4 đáp án</button>
+                <button class="ex-btn" onclick="setExerciseMode('spelling', event)">✍️ Gõ chính tả</button>
+                <button class="ex-btn" onclick="setExerciseMode('match', event)">🧩 Nối từ (Match)</button>
+                <button class="ex-btn" onclick="setExerciseMode('fillBlank', event)">📝 Fill in blanks</button>
+                <button class="ex-btn" onclick="setExerciseMode('errorCorrection', event)">🛠️ Sửa lỗi sai</button>
             </div>
 
             <div id="exerciseContainer">
@@ -608,12 +596,11 @@
         let treeState = JSON.parse(localStorage.getItem('plant_tree_data')) || {
             streak: 0,
             lastWatered: null,
-            stage: 1 // 1: Seedling, 2: Growing, 3: Flowering, 4: Tree/Harvest
+            stage: 1
         };
 
         let currentExerciseMode = 'flashcard';
-        let reviewIndex = 0;
-        let currentUser = JSON.parse(localStorage.getItem('plant_user')) || null;
+        let currentUser = JSON.parse(localStorage.getItem('plant_user')) || { name: 'Học viên' };
 
         // ==================== HELPER FUNCTIONS ====================
         function getTodayStr() {
@@ -623,60 +610,32 @@
         function saveData() {
             localStorage.setItem('plant_vocab_data', JSON.stringify(vocabList));
             localStorage.setItem('plant_tree_data', JSON.stringify(treeState));
+            localStorage.setItem('plant_user', JSON.stringify(currentUser));
             updateBadges();
         }
 
-        // ==================== GOOGLE AUTHENTICATION ====================
-        function handleCredentialResponse(response) {
-            // Decode JWT Token simple payload
-            try {
-                const base64Url = response.credential.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-                const payload = JSON.parse(jsonPayload);
-
-                currentUser = {
-                    name: payload.name,
-                    email: payload.email,
-                    picture: payload.picture
-                };
-
-                localStorage.setItem('plant_user', JSON.stringify(currentUser));
-                renderUserUI();
-            } catch (e) {
-                console.error("JWT Decode error:", e);
-            }
-        }
-
+        // ==================== USER MANAGEMENT (LOCALSTORAGE) ====================
         function renderUserUI() {
-            if (currentUser) {
-                document.getElementById('googleBtnContainer').style.display = 'none';
-                document.getElementById('userInfo').style.display = 'flex';
-                document.getElementById('userName').innerText = currentUser.name;
-                if (currentUser.picture) {
-                    document.getElementById('userAvatar').innerHTML = `<img src="${currentUser.picture}" style="width:100%;height:100%;border-radius:50%;">`;
-                } else {
-                    document.getElementById('userAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
-                }
-            } else {
-                document.getElementById('googleBtnContainer').style.display = 'block';
-                document.getElementById('userInfo').style.display = 'none';
-            }
+            document.getElementById('userName').innerText = currentUser.name;
+            document.getElementById('userAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
         }
 
-        function logoutGoogle() {
-            currentUser = null;
-            localStorage.removeItem('plant_user');
-            renderUserUI();
+        function changeUserName() {
+            const newName = prompt("Nhập tên mới của bạn:", currentUser.name);
+            if (newName && newName.trim() !== "") {
+                currentUser.name = newName.trim();
+                saveData();
+                renderUserUI();
+            }
         }
 
         // ==================== NAVIGATION ====================
-        function switchTab(tabId) {
+        function switchTab(tabId, evt) {
             document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(nb => nb.classList.remove('active'));
 
             document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
+            if (evt) evt.target.classList.add('active');
 
             if (tabId === 'vocabTab') renderVocabList();
             if (tabId === 'learnTab') renderLearnMode();
@@ -788,8 +747,7 @@
             const text = document.getElementById('bulkInput').value.trim();
             if (!text) return;
 
-            const lines = text.split(/;|
-/);
+            const lines = text.split(/;|\n/);
             let addedCount = 0;
 
             lines.forEach(line => {
@@ -813,10 +771,10 @@
         }
 
         // ==================== LEARN MODE EXERCISES ====================
-        function setExerciseMode(mode) {
+        function setExerciseMode(mode, evt) {
             currentExerciseMode = mode;
             document.querySelectorAll('.ex-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+            if (evt) evt.target.classList.add('active');
             renderLearnMode();
         }
 
@@ -840,7 +798,6 @@
                     <button class="btn-primary" onclick="renderLearnMode()">Từ tiếp theo ➔</button>
                 `;
             } else if (currentExerciseMode === 'quiz') {
-                // Generate 4 options
                 let options = [current.meaning];
                 while (options.length < 4 && options.length < vocabList.length) {
                     let randM = vocabList[Math.floor(Math.random() * vocabList.length)].meaning;
