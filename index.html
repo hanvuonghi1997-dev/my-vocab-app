@@ -3,232 +3,1010 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spaced Repetition Vocab App</title>
+    <title>Spaced Repetition Vocab App - Plant & Learn</title>
+    <!-- Google Identity Services Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #0f172a;
-            --text-light: #64748b;
-            --success: #22c55e;
+            --bg-dark: #1A2421;
+            --yellow-accent: #fdfd96;
+            --yellow-hover: #e5e57e;
+            --text-light: #f8fafc;
+            --text-muted: #a3b18a;
+            --card-bg: #24322e;
+            --card-border: #344641;
             --danger: #ef4444;
-            --border: #e2e8f0;
+            --success: #22c55e;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); padding: 20px; max-width: 800px; margin: 0 auto; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
 
-        h1, h2 { text-align: center; margin-bottom: 20px; color: var(--primary); }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
-        .tab-btn { padding: 10px 20px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; border-radius: 8px; font-weight: 600; }
-        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-        .section { display: none; background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .section.active { display: block; }
+        /* HEADER & NAVBAR */
+        header {
+            background-color: #121a18;
+            border-bottom: 2px solid var(--yellow-accent);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
 
-        /* Form */
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-light); }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
-        button.btn-submit { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        button.btn-submit:hover { background: var(--primary-hover); }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--yellow-accent);
+        }
 
-        /* Review Card */
-        .card { border: 1px solid var(--border); border-radius: 10px; padding: 25px; text-align: center; background: #fff; }
-        .word { font-size: 28px; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
-        .meaning-box { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); }
-        .context { font-style: italic; color: var(--text-light); margin-top: 5px; }
-        .action-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
-        .btn-action { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; }
-        .btn-easy { background: var(--success); }
-        .btn-hard { background: var(--danger); }
-        .btn-show { background: var(--primary); width: 100%; }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-        /* List Table */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); font-size: 14px; }
-        th { color: var(--text-light); }
-        .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; background: #e0e7ff; color: var(--primary); }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--card-bg);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--yellow-accent);
+            color: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* NAV TABS */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            background: #16201d;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--card-border);
+            overflow-x: auto;
+        }
+
+        .nav-btn {
+            background: var(--card-bg);
+            color: var(--text-light);
+            border: 1px solid var(--card-border);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--yellow-accent);
+            color: var(--yellow-accent);
+        }
+
+        .nav-btn.active {
+            background: var(--yellow-accent);
+            color: var(--bg-dark);
+            border-color: var(--yellow-accent);
+        }
+
+        /* MAIN CONTAINER */
+        main {
+            flex: 1;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 25px 20px;
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h2 {
+            color: var(--yellow-accent);
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 10px;
+        }
+
+        /* GAME / DAILY CHECK-IN SECTION */
+        .tree-widget {
+            background: #1c2724;
+            border: 2px dashed var(--yellow-accent);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .tree-stage-icon {
+            font-size: 60px;
+            margin: 10px 0;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .tree-stage-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-bar-container {
+            background: var(--bg-dark);
+            height: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 15px auto;
+            max-width: 400px;
+            border: 1px solid var(--card-border);
+        }
+
+        .progress-bar {
+            background: var(--yellow-accent);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .btn-water {
+            background: var(--yellow-accent);
+            color: var(--bg-dark);
+            border: none;
+            padding: 10px 24px;
+            font-weight: bold;
+            font-size: 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-water:hover {
+            background: var(--yellow-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-water:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* FORM STYLING */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--yellow-accent);
+            font-weight: 600;
+        }
+
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-dark);
+            border: 1px solid var(--card-border);
+            color: var(--text-light);
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input[type="text"]:focus, select:focus, textarea:focus {
+            border-color: var(--yellow-accent);
+        }
+
+        .btn-primary {
+            background: var(--yellow-accent);
+            color: var(--bg-dark);
+            border: none;
+            padding: 12px 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--yellow-hover);
+        }
+
+        /* TABLE STYLING */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        th {
+            color: var(--yellow-accent);
+            background: #1a2522;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            background: var(--bg-dark);
+            color: var(--yellow-accent);
+            border: 1px solid var(--yellow-accent);
+        }
+
+        /* LEARN / REVIEW EXERCISES */
+        .exercise-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .ex-btn {
+            background: var(--bg-dark);
+            color: var(--text-light);
+            border: 1px solid var(--card-border);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .ex-btn.active {
+            border-color: var(--yellow-accent);
+            color: var(--yellow-accent);
+            background: #1e2c28;
+        }
+
+        .flashcard {
+            background: var(--bg-dark);
+            border: 2px solid var(--yellow-accent);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            user-select: none;
+        }
+
+        .flashcard .word-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--yellow-accent);
+        }
+
+        .flashcard .pos-tag {
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        .flashcard .meaning-text {
+            font-size: 20px;
+            margin-top: 15px;
+            color: var(--text-light);
+            display: none;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+
+        .option-btn {
+            background: var(--bg-dark);
+            color: var(--text-light);
+            border: 1px solid var(--card-border);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            border-color: var(--yellow-accent);
+        }
+
+        .option-btn.correct {
+            background: #14532d !important;
+            border-color: var(--success) !important;
+            color: white;
+        }
+
+        .option-btn.wrong {
+            background: #7f1d1d !important;
+            border-color: var(--danger) !important;
+            color: white;
+        }
+
+        /* MATCH GAME STYLES */
+        .match-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .match-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--card-border);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .match-card.selected {
+            border-color: var(--yellow-accent);
+            background: #2a3a35;
+            color: var(--yellow-accent);
+        }
+
+        .match-card.matched {
+            visibility: hidden;
+        }
+
+        .bulk-import-box {
+            background: var(--bg-dark);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid var(--card-border);
+        }
+
+        .feedback-msg {
+            margin-top: 15px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback-msg.success { display: block; background: #14532d; color: #4ade80; }
+        .feedback-msg.error { display: block; background: #7f1d1d; color: #f87171; }
     </style>
 </head>
 <body>
 
-    <h1>🧠 Spaced Repetition Vocab</h1>
-
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('reviewTab')">Ôn tập hôm nay (<span id="dueCount">0</span>)</button>
-        <button class="tab-btn" onclick="switchTab('addTab')">+ Thêm từ mới</button>
-        <button class="tab-btn" onclick="switchTab('listTab')">Tất cả từ</button>
-    </div>
-
-    <!-- TAB 1: ÔN TẬP -->
-    <div id="reviewTab" class="section active">
-        <div id="reviewContainer">
-            <!-- Render bài học bằng Javascript -->
+    <!-- HEADER -->
+    <header>
+        <div class="brand">
+            🌱 Plant & Learn Vocab
         </div>
-    </div>
+        <div class="user-profile">
+            <!-- Google Sign-In Container -->
+            <div id="g_id_onload"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div id="googleBtnContainer">
+                <div class="g_id_signin" data-type="standard"></div>
+            </div>
 
-    <!-- TAB 2: THÊM TỪ -->
-    <div id="addTab" class="section">
-        <h2>Thêm từ vựng mới</h2>
-        <form id="addForm">
-            <div class="form-group">
-                <label>Từ vựng (Word / Phrase):</label>
-                <input type="text" id="wordInput" required placeholder="ví dụ: Accommodate">
+            <!-- Profile status when logged in -->
+            <div id="userInfo" class="user-info" style="display: none;">
+                <div id="userAvatar" class="user-avatar">U</div>
+                <span id="userName" style="font-size: 14px; font-weight: 600;">Guest</span>
+                <button class="btn-logout" onclick="logoutGoogle()">Đăng xuất</button>
             </div>
-            <div class="form-group">
-                <label>Định nghĩa / Nghĩa tiếng Việt:</label>
-                <input type="text" id="meaningInput" required placeholder="ví dụ: Đáp ứng nhu cầu, cung cấp chỗ ở">
-            </div>
-            <div class="form-group">
-                <label>Ngữ cảnh / Ví dụ / Collocation:</label>
-                <textarea id="contextInput" rows="3" placeholder="ví dụ: accommodate clients' needs"></textarea>
-            </div>
-            <button type="submit" class="btn-submit">Lưu từ này</button>
-        </form>
-    </div>
+        </div>
+    </header>
 
-    <!-- TAB 3: DANH SÁCH -->
-    <div id="listTab" class="section">
-        <h2>Danh sách từ đã lưu</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Từ vựng</th>
-                    <th>Nghĩa</th>
-                    <th>Cấp độ</th>
-                    <th>Ngày ôn tiếp</th>
-                </tr>
-            </thead>
-            <tbody id="vocabTableBody">
-                <!-- Render danh sách -->
-            </tbody>
-        </table>
-    </div>
+    <!-- NAVIGATION TABS -->
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('vocabTab')">📖 Kho từ vựng</button>
+        <button class="nav-btn" onclick="switchTab('addTab')">➕ Thêm từ mới</button>
+        <button class="nav-btn" onclick="switchTab('learnTab')">🎯 Learn (Luyện tập)</button>
+        <button class="nav-btn" onclick="switchTab('reviewTab')">⏰ Cần ôn tập (<span id="reviewBadge">0</span>)</button>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main>
+        <!-- WIDGET: TREE PLANTING (DAILY CHECK-IN) -->
+        <div class="tree-widget">
+            <h3 style="color: var(--yellow-accent);">🌱 Nông trại từ vựng (Điểm danh hàng ngày)</h3>
+            <div id="treeIcon" class="tree-stage-icon">🌱</div>
+            <p id="treeStatusText">Cây nhỏ đang lớn! Nước tưới hôm nay: <strong id="waterStatus">Chưa tưới</strong></p>
+            
+            <div class="progress-bar-container">
+                <div id="treeProgress" class="progress-bar"></div>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+                Cấp độ hạt giống: <span id="treeLevelText">Giai đoạn 1 (0/5 ngày tưới)</span>
+            </p>
+            <button id="btnWater" class="btn-water" onclick="waterTree()">💧 Tưới nước hôm nay (+1 Ngày)</button>
+        </div>
+
+        <!-- TAB 1: KHO TỪ VỰNG -->
+        <div id="vocabTab" class="tab-content active">
+            <h2>📖 Kho từ vựng của tôi</h2>
+            <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                <input type="text" id="searchVocab" placeholder="🔍 Tìm kiếm từ vựng hoặc nghĩa..." oninput="renderVocabList()">
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Từ vựng (Word)</th>
+                            <th>Từ loại (PoS)</th>
+                            <th>Định nghĩa (Meaning)</th>
+                            <th>Cấp độ ôn</th>
+                            <th>Ngày ôn tiếp</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vocabTableBody">
+                        <!-- Rendered by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: THÊM TỪ MỚI -->
+        <div id="addTab" class="tab-content">
+            <h2>➕ Thêm từ vựng mới</h2>
+            
+            <!-- Single Add Form -->
+            <form id="addSingleForm" onsubmit="handleSingleAdd(event)">
+                <div class="form-group">
+                    <label>Word (Từ vựng):</label>
+                    <input type="text" id="inputWord" placeholder="ví dụ: Procrastinate" required>
+                </div>
+                <div class="form-group">
+                    <label>Part of Speech (Từ loại):</label>
+                    <select id="inputPos">
+                        <option value="Verb">Verb (Động từ)</option>
+                        <option value="Noun">Noun (Danh từ)</option>
+                        <option value="Adjective">Adjective (Tính từ)</option>
+                        <option value="Adverb">Adverb (Phó từ)</option>
+                        <option value="Phrase">Phrase (Cụm từ)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Meaning (Nghĩa tiếng Việt):</label>
+                    <input type="text" id="inputMeaning" placeholder="ví dụ: Trì hoãn công việc" required>
+                </div>
+                <button type="submit" class="btn-primary">Lưu từ này</button>
+            </form>
+
+            <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 30px 0;">
+
+            <!-- Bulk Import Section -->
+            <div class="bulk-import-box">
+                <h3 style="color: var(--yellow-accent); margin-bottom: 10px;">⚡ Import nhanh hàng loạt (Bulk Import)</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+                    Cú pháp chuẩn: Giữa Word, Part of Speech, Meaning ngăn cách bằng dấu phẩy <code>,</code> và mỗi từ nằm trên 1 dòng <code>;</code> ở cuối hoặc xuống dòng.<br>
+                    <strong>Mẫu:</strong> <code>Accommodate, Verb, Đáp ứng nhu cầu;</code>
+                </p>
+                <textarea id="bulkInput" rows="5" placeholder="Accommodate, Verb, Đáp ứng nhu cầu;&#10;Reluctant, Adjective, Lưỡng lự miễn cưỡng;&#10;Ambiguous, Adjective, Mơ hồ khó hiểu"></textarea>
+                <button class="btn-primary" style="margin-top: 10px;" onclick="handleBulkImport()">Import ngay</button>
+            </div>
+        </div>
+
+        <!-- TAB 3: LEARN (LUYỆN TẬP TỰ DO) -->
+        <div id="learnTab" class="tab-content">
+            <h2>🎯 Luyện tập ghi nhớ (Learn Mode)</h2>
+            <div class="exercise-selector">
+                <button class="ex-btn active" onclick="setExerciseMode('flashcard')">🃏 Flashcard</button>
+                <button class="ex-btn" onclick="setExerciseMode('quiz')">❓ Trắc nghiệm 4 đáp án</button>
+                <button class="ex-btn" onclick="setExerciseMode('spelling')">✍️ Gõ chính tả</button>
+                <button class="ex-btn" onclick="setExerciseMode('match')">🧩 Nối từ (Match)</button>
+                <button class="ex-btn" onclick="setExerciseMode('fillBlank')">📝 Fill in blanks</button>
+                <button class="ex-btn" onclick="setExerciseMode('errorCorrection')">🛠️ Sửa lỗi sai</button>
+            </div>
+
+            <div id="exerciseContainer">
+                <!-- Dynamic exercise content -->
+            </div>
+        </div>
+
+        <!-- TAB 4: CẦN ÔN TẬP (SPACED REPETITION) -->
+        <div id="reviewTab" class="tab-content">
+            <h2>⏰ Danh sách từ cần ôn hôm nay (Day D)</h2>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">
+                Các từ dưới đây đã đến lịch Spaced Repetition cần ôn tập để đưa vào bộ nhớ vĩnh viễn.
+            </p>
+
+            <div id="reviewExerciseArea">
+                <!-- Render Review Cards/Exercises -->
+            </div>
+        </div>
+    </main>
 
     <script>
-        // Kho khoảng cách ngày ôn tập (Spaced Repetition Intervals in Days)
-        const INTERVALS = [1, 3, 7, 14, 30, 60];
+        // ==================== APP STATE & DATA ====================
+        const INTERVALS = [1, 3, 7, 14, 30, 60]; // Spaced repetition days
+        
+        let vocabList = JSON.parse(localStorage.getItem('plant_vocab_data')) || [
+            { id: 1, word: 'Accommodate', pos: 'Verb', meaning: 'Đáp ứng nhu cầu, cung cấp chỗ ở', level: 0, nextReview: getTodayStr() },
+            { id: 2, word: 'Procrastinate', pos: 'Verb', meaning: 'Trì hoãn công việc', level: 1, nextReview: getTodayStr() },
+            { id: 3, word: 'Reluctant', pos: 'Adjective', meaning: 'Lưỡng lự, miễn cưỡng', level: 2, nextReview: '2026-08-25' }
+        ];
 
-        // Lấy dữ liệu từ localStorage
-        let vocabList = JSON.parse(localStorage.getItem('my_vocab_list')) || [];
+        let treeState = JSON.parse(localStorage.getItem('plant_tree_data')) || {
+            streak: 0,
+            lastWatered: null,
+            stage: 1 // 1: Seedling, 2: Growing, 3: Flowering, 4: Tree/Harvest
+        };
 
-        // Chuyển Tab
+        let currentExerciseMode = 'flashcard';
+        let reviewIndex = 0;
+        let currentUser = JSON.parse(localStorage.getItem('plant_user')) || null;
+
+        // ==================== HELPER FUNCTIONS ====================
+        function getTodayStr() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function saveData() {
+            localStorage.setItem('plant_vocab_data', JSON.stringify(vocabList));
+            localStorage.setItem('plant_tree_data', JSON.stringify(treeState));
+            updateBadges();
+        }
+
+        // ==================== GOOGLE AUTHENTICATION ====================
+        function handleCredentialResponse(response) {
+            // Decode JWT Token simple payload
+            try {
+                const base64Url = response.credential.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                const payload = JSON.parse(jsonPayload);
+
+                currentUser = {
+                    name: payload.name,
+                    email: payload.email,
+                    picture: payload.picture
+                };
+
+                localStorage.setItem('plant_user', JSON.stringify(currentUser));
+                renderUserUI();
+            } catch (e) {
+                console.error("JWT Decode error:", e);
+            }
+        }
+
+        function renderUserUI() {
+            if (currentUser) {
+                document.getElementById('googleBtnContainer').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'flex';
+                document.getElementById('userName').innerText = currentUser.name;
+                if (currentUser.picture) {
+                    document.getElementById('userAvatar').innerHTML = `<img src="${currentUser.picture}" style="width:100%;height:100%;border-radius:50%;">`;
+                } else {
+                    document.getElementById('userAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
+                }
+            } else {
+                document.getElementById('googleBtnContainer').style.display = 'block';
+                document.getElementById('userInfo').style.display = 'none';
+            }
+        }
+
+        function logoutGoogle() {
+            currentUser = null;
+            localStorage.removeItem('plant_user');
+            renderUserUI();
+        }
+
+        // ==================== NAVIGATION ====================
         function switchTab(tabId) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(nb => nb.classList.remove('active'));
+
             document.getElementById(tabId).classList.add('active');
             event.target.classList.add('active');
 
-            if(tabId === 'reviewTab') renderReview();
-            if(tabId === 'listTab') renderList();
+            if (tabId === 'vocabTab') renderVocabList();
+            if (tabId === 'learnTab') renderLearnMode();
+            if (tabId === 'reviewTab') renderReviewMode();
         }
 
-        // Lưu dữ liệu
-        function saveData() {
-            localStorage.setItem('my_vocab_list', JSON.stringify(vocabList));
-            updateDueCount();
+        function updateBadges() {
+            const today = getTodayStr();
+            const dueList = vocabList.filter(item => item.nextReview <= today);
+            document.getElementById('reviewBadge').innerText = dueList.length;
         }
 
-        // Đếm số từ đến hạn ôn hôm nay
-        function updateDueCount() {
-            const today = new Date().toISOString().split('T')[0];
-            const dueWords = vocabList.filter(item => item.nextReview <= today);
-            document.getElementById('dueCount').innerText = dueWords.length;
+        // ==================== TREE PLANTING (CHECK-IN) ====================
+        function renderTree() {
+            const icons = ['🌱', '🌿', '🌸', '🌳'];
+            const stages = ['Giai đoạn 1: Mầm cây', 'Giai đoạn 2: Cây con', 'Giai đoạn 3: Ra hoa', 'Giai đoạn 4: Thu hoạch! 🎉'];
+            
+            let stageIdx = Math.min(Math.floor(treeState.streak / 5), 3);
+            treeState.stage = stageIdx + 1;
+
+            document.getElementById('treeIcon').innerText = icons[stageIdx];
+            
+            let progressPct = ((treeState.streak % 5) / 5) * 100;
+            if (treeState.streak >= 20) progressPct = 100;
+            
+            document.getElementById('treeProgress').style.width = progressPct + '%';
+            document.getElementById('treeLevelText').innerText = `${stages[stageIdx]} (${treeState.streak}/20 ngày)`;
+
+            const today = getTodayStr();
+            const btnWater = document.getElementById('btnWater');
+            const waterStatus = document.getElementById('waterStatus');
+
+            if (treeState.lastWatered === today) {
+                btnWater.disabled = true;
+                btnWater.innerText = '✅ Đã tưới hôm nay';
+                waterStatus.innerText = 'Đã tưới';
+                waterStatus.style.color = 'var(--yellow-accent)';
+            } else {
+                btnWater.disabled = false;
+                btnWater.innerText = '💧 Tưới nước hôm nay (+1 Ngày)';
+                waterStatus.innerText = 'Chưa tưới';
+                waterStatus.style.color = 'var(--danger)';
+            }
         }
 
-        // Thêm từ mới
-        document.getElementById('addForm').addEventListener('submit', (e) => {
+        function waterTree() {
+            const today = getTodayStr();
+            if (treeState.lastWatered !== today) {
+                treeState.streak += 1;
+                treeState.lastWatered = today;
+                saveData();
+                renderTree();
+                alert('🎉 Bạn đã tưới nước thành công! Cây từ vựng tăng thêm 1 ngày tăng trưởng.');
+            }
+        }
+
+        // ==================== VOCAB LIST ====================
+        function renderVocabList() {
+            const tbody = document.getElementById('vocabTableBody');
+            const query = document.getElementById('searchVocab').value.toLowerCase();
+            
+            const filtered = vocabList.filter(v => 
+                v.word.toLowerCase().includes(query) || v.meaning.toLowerCase().includes(query)
+            );
+
+            tbody.innerHTML = filtered.map(v => `
+                <tr>
+                    <td><strong>${v.word}</strong></td>
+                    <td><span class="badge">${v.pos}</span></td>
+                    <td>${v.meaning}</td>
+                    <td>Level ${v.level}</td>
+                    <td>${v.nextReview}</td>
+                    <td><button onclick="deleteVocab(${v.id})" style="background:none;border:none;color:var(--danger);cursor:pointer;">🗑️ Xóa</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteVocab(id) {
+            if (confirm('Bạn có chắc muốn xóa từ này?')) {
+                vocabList = vocabList.filter(v => v.id !== id);
+                saveData();
+                renderVocabList();
+            }
+        }
+
+        // ==================== ADD VOCAB ====================
+        function handleSingleAdd(e) {
             e.preventDefault();
-            const today = new Date().toISOString().split('T')[0];
-            const newWord = {
-                id: Date.now(),
-                word: document.getElementById('wordInput').value.trim(),
-                meaning: document.getElementById('meaningInput').value.trim(),
-                context: document.getElementById('contextInput').value.trim(),
-                level: 0, // Cấp độ ghi nhớ
-                nextReview: today // Ôn ngay lập tức hoặc ngày mai
-            };
+            const word = document.getElementById('inputWord').value.trim();
+            const pos = document.getElementById('inputPos').value;
+            const meaning = document.getElementById('inputMeaning').value.trim();
 
-            vocabList.push(newWord);
+            if (word && meaning) {
+                vocabList.push({
+                    id: Date.now(),
+                    word,
+                    pos,
+                    meaning,
+                    level: 0,
+                    nextReview: getTodayStr()
+                });
+                saveData();
+                document.getElementById('addSingleForm').reset();
+                alert('Đã thêm từ mới thành công!');
+            }
+        }
+
+        function handleBulkImport() {
+            const text = document.getElementById('bulkInput').value.trim();
+            if (!text) return;
+
+            const lines = text.split(/;|
+/);
+            let addedCount = 0;
+
+            lines.forEach(line => {
+                const parts = line.split(',').map(p => p.trim());
+                if (parts.length >= 3) {
+                    vocabList.push({
+                        id: Date.now() + Math.random(),
+                        word: parts[0],
+                        pos: parts[1],
+                        meaning: parts[2],
+                        level: 0,
+                        nextReview: getTodayStr()
+                    });
+                    addedCount++;
+                }
+            });
+
             saveData();
-            e.target.reset();
-            alert('Đã lưu từ thành công!');
-        });
+            document.getElementById('bulkInput').value = '';
+            alert(`Đã import thành công ${addedCount} từ vựng!`);
+        }
 
-        // Render màn hình Ôn Tập
-        function renderReview() {
-            const today = new Date().toISOString().split('T')[0];
+        // ==================== LEARN MODE EXERCISES ====================
+        function setExerciseMode(mode) {
+            currentExerciseMode = mode;
+            document.querySelectorAll('.ex-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderLearnMode();
+        }
+
+        function renderLearnMode() {
+            const container = document.getElementById('exerciseContainer');
+            if (vocabList.length === 0) {
+                container.innerHTML = '<p>Kho từ vựng đang trống. Hãy thêm từ mới trước!</p>';
+                return;
+            }
+
+            const current = vocabList[Math.floor(Math.random() * vocabList.length)];
+
+            if (currentExerciseMode === 'flashcard') {
+                container.innerHTML = `
+                    <div class="flashcard" onclick="toggleFlashcardMeaning()">
+                        <div class="word-title">${current.word}</div>
+                        <div class="pos-tag">(${current.pos})</div>
+                        <div id="fcMeaning" class="meaning-text">${current.meaning}</div>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 20px;">(Bấm để lật xem nghĩa)</p>
+                    </div>
+                    <button class="btn-primary" onclick="renderLearnMode()">Từ tiếp theo ➔</button>
+                `;
+            } else if (currentExerciseMode === 'quiz') {
+                // Generate 4 options
+                let options = [current.meaning];
+                while (options.length < 4 && options.length < vocabList.length) {
+                    let randM = vocabList[Math.floor(Math.random() * vocabList.length)].meaning;
+                    if (!options.includes(randM)) options.push(randM);
+                }
+                options.sort(() => Math.random() - 0.5);
+
+                container.innerHTML = `
+                    <h3 style="color:var(--yellow-accent); margin-bottom: 10px;">Chọn nghĩa đúng cho từ: <span style="font-size:24px;">${current.word}</span> (${current.pos})</h3>
+                    <div class="options-grid">
+                        ${options.map(opt => `
+                            <button class="option-btn" onclick="checkQuiz(this, '${opt === current.meaning}')">${opt}</button>
+                        `).join('')}
+                    </div>
+                    <button class="btn-primary" style="margin-top:20px;" onclick="renderLearnMode()">Từ tiếp theo ➔</button>
+                `;
+            } else if (currentExerciseMode === 'spelling') {
+                container.innerHTML = `
+                    <h3 style="color:var(--yellow-accent); margin-bottom: 10px;">Gõ từ vựng tiếng Anh cho nghĩa:</h3>
+                    <p style="font-size: 20px; margin-bottom: 15px;">"${current.meaning}" (${current.pos})</p>
+                    <input type="text" id="spellingInput" placeholder="Nhập từ ở đây..." style="margin-bottom:15px;">
+                    <button class="btn-primary" onclick="checkSpelling('${current.word}')">Kiểm tra</button>
+                    <div id="spellingFeedback" class="feedback-msg"></div>
+                `;
+            } else if (currentExerciseMode === 'match') {
+                renderMatchGame(container);
+            } else if (currentExerciseMode === 'fillBlank') {
+                container.innerHTML = `
+                    <h3 style="color:var(--yellow-accent); margin-bottom:10px;">Điền từ thích hợp vào chỗ trống:</h3>
+                    <p style="font-size: 18px; margin-bottom:15px;">"The team had to ________ to the client's new demands." (Nghĩa: ${current.meaning})</p>
+                    <input type="text" id="fillInput" placeholder="Nhập từ..." style="margin-bottom:15px;">
+                    <button class="btn-primary" onclick="checkSpelling('${current.word}')">Kiểm tra</button>
+                    <div id="spellingFeedback" class="feedback-msg"></div>
+                `;
+            } else if (currentExerciseMode === 'errorCorrection') {
+                container.innerHTML = `
+                    <h3 style="color:var(--yellow-accent); margin-bottom:10px;">Sửa lỗi sai trong câu:</h3>
+                    <p style="font-size: 16px; margin-bottom:15px;">Câu sai: "We need to <i>${current.word}ing</i> their request."</p>
+                    <p style="color:var(--text-muted);">Sửa lại từ nguyên mẫu chuẩn:</p>
+                    <input type="text" id="errorInput" placeholder="Nhập từ đúng..." style="margin-bottom:15px;">
+                    <button class="btn-primary" onclick="checkSpelling('${current.word}')">Xác nhận</button>
+                    <div id="spellingFeedback" class="feedback-msg"></div>
+                `;
+            }
+        }
+
+        function toggleFlashcardMeaning() {
+            const m = document.getElementById('fcMeaning');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function checkQuiz(btn, isCorrect) {
+            if (isCorrect === 'true') {
+                btn.classList.add('correct');
+            } else {
+                btn.classList.add('wrong');
+            }
+        }
+
+        function checkSpelling(correctWord) {
+            const input = document.getElementById('spellingInput') || document.getElementById('fillInput') || document.getElementById('errorInput');
+            const fb = document.getElementById('spellingFeedback');
+            if (input.value.trim().toLowerCase() === correctWord.toLowerCase()) {
+                fb.className = 'feedback-msg success';
+                fb.innerText = '🎉 Chính xác! Bạn giỏi lắm.';
+            } else {
+                fb.className = 'feedback-msg error';
+                fb.innerText = `❌ Chưa đúng! Đáp án chuẩn là: ${correctWord}`;
+            }
+        }
+
+        function renderMatchGame(container) {
+            let sample = vocabList.slice(0, 4);
+            if (sample.length < 2) {
+                container.innerHTML = '<p>Cần ít nhất 2 từ vựng để chơi trò nối từ!</p>';
+                return;
+            }
+
+            let words = sample.map(s => ({ id: s.id, text: s.word, type: 'word' }));
+            let meanings = sample.map(s => ({ id: s.id, text: s.meaning, type: 'meaning' }));
+            let allCards = [...words, ...meanings].sort(() => Math.random() - 0.5);
+
+            container.innerHTML = `
+                <h3 style="color:var(--yellow-accent); margin-bottom: 15px;">Ghép từ với nghĩa tương ứng:</h3>
+                <div class="match-grid">
+                    ${allCards.map((c, i) => `
+                        <div class="match-card" data-id="${c.id}" onclick="selectMatchCard(this)">${c.text}</div>
+                    `).join('')}
+                </div>
+                <button class="btn-primary" style="margin-top:20px;" onclick="renderLearnMode()">Lượt mới 🔄</button>
+            `;
+        }
+
+        let selectedMatch = null;
+        function selectMatchCard(card) {
+            if (selectedMatch === null) {
+                selectedMatch = card;
+                card.classList.add('selected');
+            } else {
+                if (selectedMatch === card) {
+                    card.classList.remove('selected');
+                    selectedMatch = null;
+                    return;
+                }
+
+                if (selectedMatch.dataset.id === card.dataset.id) {
+                    selectedMatch.classList.add('matched');
+                    card.classList.add('matched');
+                } else {
+                    selectedMatch.classList.remove('selected');
+                }
+                selectedMatch = null;
+            }
+        }
+
+        // ==================== REVIEW MODE (DAY D) ====================
+        function renderReviewMode() {
+            const today = getTodayStr();
             const dueWords = vocabList.filter(item => item.nextReview <= today);
-            const container = document.getElementById('reviewContainer');
+            const container = document.getElementById('reviewExerciseArea');
 
             if (dueWords.length === 0) {
-                container.innerHTML = `<h3>🎉 Tuyệt vời! Bạn đã hoàn thành tất cả từ cần ôn hôm nay.</h3>`;
+                container.innerHTML = '<h3>🎉 Tuyệt vời! Bạn không có từ nào cần ôn tập hôm nay.</h3>';
                 return;
             }
 
             const current = dueWords[0];
             container.innerHTML = `
-                <div class="card">
-                    <div class="word">${current.word}</div>
-                    <button class="btn-action btn-show" onclick="showMeaning()">Xem nghĩa & Ngữ cảnh</button>
+                <div class="flashcard">
+                    <div class="word-title">${current.word}</div>
+                    <div class="pos-tag">(${current.pos})</div>
+                    <div id="reviewMeaning" class="meaning-text" style="display:none; margin-top: 15px;">${current.meaning}</div>
+                </div>
 
-                    <div id="meaningBox" class="meaning-box">
-                        <h3>${current.meaning}</h3>
-                        <p class="context">${current.context ? '💡 Ngữ cảnh: ' + current.context : ''}</p>
-                        
-                        <div class="action-btns">
-                            <button class="btn-action btn-hard" onclick="processReview(${current.id}, false)">❌ Quên rồi (Học lại)</button>
-                            <button class="btn-action btn-easy" onclick="processReview(${current.id}, true)">✅ Thuộc rồi (+Gia tăng lịch)</button>
-                        </div>
-                    </div>
+                <button class="btn-primary" id="btnShowReview" onclick="document.getElementById('reviewMeaning').style.display='block'; this.style.display='none'; document.getElementById('reviewActionBtns').style.display='flex';">Hiện đáp án</button>
+
+                <div id="reviewActionBtns" style="display:none; gap:10px; margin-top:15px;">
+                    <button class="btn-primary" style="background:var(--danger); color:white;" onclick="processReviewResult(${current.id}, false)">❌ Quên rồi (Reset Level)</button>
+                    <button class="btn-primary" style="background:var(--success); color:white;" onclick="processReviewResult(${current.id}, true)">✅ Đã nhớ (+Tăng Level)</button>
                 </div>
             `;
         }
 
-        function showMeaning() {
-            document.getElementById('meaningBox').style.display = 'block';
-            document.querySelector('.btn-show').style.display = 'none';
-        }
-
-        // Xử lý thuật toán Spaced Repetition khi bấm thuộc/quên
-        function processReview(id, isRemembered) {
+        function processReviewResult(id, isRemembered) {
             const item = vocabList.find(v => v.id === id);
             const today = new Date();
 
             if (isRemembered) {
                 item.level = Math.min(item.level + 1, INTERVALS.length - 1);
             } else {
-                item.level = 0; // Nếu quên, reset về cấp độ 0
+                item.level = 0;
             }
 
-            // Tính ngày tiếp theo
             const daysToAdd = INTERVALS[item.level];
             today.setDate(today.getDate() + daysToAdd);
             item.nextReview = today.toISOString().split('T')[0];
 
             saveData();
-            renderReview();
+            renderReviewMode();
         }
 
-        // Render Danh sách
-        function renderList() {
-            const tbody = document.getElementById('vocabTableBody');
-            tbody.innerHTML = vocabList.map(item => `
-                <tr>
-                    <td><strong>${item.word}</strong></td>
-                    <td>${item.meaning}</td>
-                    <td><span class="badge">Level ${item.level}</span></td>
-                    <td>${item.nextReview}</td>
-                </tr>
-            `).join('');
-        }
-
-        // Khởi chạy ban đầu
-        updateDueCount();
-        renderReview();
+        // ==================== INITIALIZATION ====================
+        renderUserUI();
+        renderTree();
+        updateBadges();
+        renderVocabList();
     </script>
 </body>
 </html>
