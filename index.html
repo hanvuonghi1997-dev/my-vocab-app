@@ -3,25 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spaced Repetition Vocab App - Plant & Learn</title>
+    <title>Vocab Garden - Spaced Repetition & Daily Attendance</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
             --bg-dark: #1A2421;
-            --yellow-accent: #fdfd96;
-            --yellow-hover: #e5e57e;
-            --text-light: #f8fafc;
-            --text-muted: #a3b18a;
-            --card-bg: #24322e;
-            --card-border: #344641;
-            --danger: #ef4444;
-            --success: #22c55e;
+            --bg-card: #24322E;
+            --bg-card-hover: #2D3E3A;
+            --yellow-main: #fdfd96;
+            --yellow-hover: #e6e67e;
+            --yellow-alpha: rgba(253, 253, 150, 0.15);
+            --text-light: #E8EFEF;
+            --text-muted: #9AADA8;
+            --border-color: #31443F;
+            --success: #4EBE88;
+            --danger: #E86A6A;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -30,734 +43,1067 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
-        /* HEADER & NAVBAR */
+        /* Top Header & Streak Garden Bar */
         header {
-            background-color: #121a18;
-            border-bottom: 2px solid var(--yellow-accent);
-            padding: 15px 20px;
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1100px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 16px;
         }
 
-        .brand {
+        .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 22px;
-            font-weight: bold;
-            color: var(--yellow-accent);
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--yellow-main);
+            text-decoration: none;
         }
 
-        .user-profile {
+        .logo i {
+            font-size: 1.6rem;
+        }
+
+        /* Garden Widget */
+        .garden-status {
             display: flex;
             align-items: center;
-            gap: 15px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--card-bg);
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--card-border);
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--yellow-accent);
-            color: var(--bg-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .btn-action-sm {
-            background: transparent;
-            border: 1px solid var(--yellow-accent);
-            color: var(--yellow-accent);
-            padding: 4px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .btn-action-sm:hover {
-            background: var(--yellow-accent);
-            color: var(--bg-dark);
-        }
-
-        /* NAV TABS */
-        nav {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            background: #16201d;
-            padding: 12px 20px;
-            border-bottom: 1px solid var(--card-border);
-            overflow-x: auto;
-        }
-
-        .nav-btn {
-            background: var(--card-bg);
-            color: var(--text-light);
-            border: 1px solid var(--card-border);
+            gap: 16px;
+            background-color: var(--bg-dark);
             padding: 10px 18px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
         }
 
-        .nav-btn:hover {
-            border-color: var(--yellow-accent);
-            color: var(--yellow-accent);
+        .streak-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--yellow-main);
         }
 
-        .nav-btn.active {
-            background: var(--yellow-accent);
+        .tree-stage {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tree-icon {
+            font-size: 1.5rem;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .progress-bar-container {
+            width: 100px;
+            height: 10px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--yellow-main);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .btn-water {
+            background-color: var(--yellow-main);
             color: var(--bg-dark);
-            border-color: var(--yellow-accent);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
 
-        /* MAIN CONTAINER */
+        .btn-water:hover:not(:disabled) {
+            background-color: var(--yellow-hover);
+            transform: scale(1.03);
+        }
+
+        .btn-water:disabled {
+            background-color: var(--bg-card);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Main Layout */
         main {
             flex: 1;
-            max-width: 1000px;
+            max-width: 1100px;
             width: 100%;
             margin: 0 auto;
-            padding: 25px 20px;
+            padding: 32px 20px;
         }
 
+        /* Homepage Grid Cards */
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .nav-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: transparent;
+            transition: background 0.3s ease;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-5px);
+            background-color: var(--bg-card-hover);
+            border-color: var(--yellow-main);
+            box-shadow: var(--shadow);
+        }
+
+        .nav-card:hover::before {
+            background: var(--yellow-main);
+        }
+
+        .nav-card-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: var(--radius-md);
+            background-color: var(--yellow-alpha);
+            color: var(--yellow-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 18px;
+        }
+
+        .nav-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .nav-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .badge-count {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--yellow-main);
+            color: var(--bg-dark);
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 50px;
+        }
+
+        /* Page / Tab Content Area */
         .tab-content {
             display: none;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s ease;
         }
 
         .tab-content.active {
             display: block;
         }
 
-        h2 {
-            color: var(--yellow-accent);
-            margin-bottom: 20px;
-            font-size: 24px;
-            border-bottom: 1px solid var(--card-border);
-            padding-bottom: 10px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* GAME / DAILY CHECK-IN SECTION */
-        .tree-widget {
-            background: #1c2724;
-            border: 2px dashed var(--yellow-accent);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .tree-stage-icon {
-            font-size: 60px;
-            margin: 10px 0;
-            display: inline-block;
-            transition: transform 0.3s ease;
-        }
-
-        .tree-stage-icon:hover {
-            transform: scale(1.1);
-        }
-
-        .progress-bar-container {
-            background: var(--bg-dark);
-            height: 16px;
-            border-radius: 8px;
-            overflow: hidden;
-            margin: 15px auto;
-            max-width: 400px;
-            border: 1px solid var(--card-border);
-        }
-
-        .progress-bar {
-            background: var(--yellow-accent);
-            height: 100%;
-            width: 0%;
-            transition: width 0.4s ease;
-        }
-
-        .btn-water {
-            background: var(--yellow-accent);
-            color: var(--bg-dark);
+        /* Back to Home Button */
+        .btn-back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--yellow-main);
+            background: transparent;
             border: none;
-            padding: 10px 24px;
-            font-weight: bold;
-            font-size: 15px;
-            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
+            margin-bottom: 24px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            transition: background 0.2s ease;
         }
 
-        .btn-water:hover {
-            background: var(--yellow-hover);
+        .btn-back-home:hover {
+            background-color: var(--yellow-alpha);
+        }
+
+        /* Section Titles */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--yellow-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Buttons Standard */
+        .btn {
+            background-color: var(--yellow-main);
+            color: var(--bg-dark);
+            padding: 12px 22px;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--yellow-hover);
             transform: translateY(-2px);
         }
 
-        .btn-water:disabled {
-            background: #555;
-            color: #888;
-            cursor: not-allowed;
-            transform: none;
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
         }
 
-        /* FORM STYLING */
+        .btn-outline:hover {
+            background-color: var(--bg-card-hover);
+            border-color: var(--yellow-main);
+            color: var(--yellow-main);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #d65555;
+        }
+
+        /* Form Controls */
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
-        label {
+        .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: var(--yellow-accent);
+            font-size: 0.9rem;
             font-weight: 600;
+            color: var(--text-muted);
         }
 
-        input[type="text"], select, textarea {
+        .form-control {
             width: 100%;
-            padding: 12px;
-            background: var(--bg-dark);
-            border: 1px solid var(--card-border);
+            padding: 14px 16px;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
             color: var(--text-light);
-            border-radius: 8px;
-            font-size: 15px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus {
             outline: none;
+            border-color: var(--yellow-main);
         }
 
-        input[type="text"]:focus, select:focus, textarea:focus {
-            border-color: var(--yellow-accent);
+        textarea.form-control {
+            resize: vertical;
+            min-height: 110px;
         }
 
-        .btn-primary {
-            background: var(--yellow-accent);
-            color: var(--bg-dark);
-            border: none;
-            padding: 12px 20px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            transition: background 0.2s;
+        /* Add Vocab Section Layout */
+        .add-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
         }
 
-        .btn-primary:hover {
-            background: var(--yellow-hover);
+        @media (max-width: 768px) {
+            .add-grid { grid-template-columns: 1fr; }
         }
 
-        /* TABLE STYLING */
-        .table-responsive {
+        .card-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        .import-box {
+            background-color: var(--bg-dark);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .import-box code {
+            color: var(--yellow-main);
+            background: rgba(253, 253, 150, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Vocab Vault Table & Controls */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            flex: 1;
+        }
+
+        .vocab-table-wrapper {
             overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            text-align: left;
+            background-color: var(--bg-card);
         }
 
         th, td {
-            text-align: left;
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--card-border);
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         th {
-            color: var(--yellow-accent);
-            background: #1a2522;
+            background-color: #1f2b28;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: var(--bg-card-hover);
+        }
+
+        .pos-badge {
+            background-color: var(--yellow-alpha);
+            color: var(--yellow-main);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            background: var(--bg-dark);
-            color: var(--yellow-accent);
-            border: 1px solid var(--yellow-accent);
+            text-transform: lowercase;
+            font-style: italic;
         }
 
-        /* LEARN / REVIEW EXERCISES */
-        .exercise-selector {
+        /* Practice / Learn Sub-tabs */
+        .practice-tabs {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 8px;
         }
 
-        .ex-btn {
-            background: var(--bg-dark);
-            color: var(--text-light);
-            border: 1px solid var(--card-border);
-            padding: 8px 14px;
-            border-radius: 6px;
+        .p-tab-btn {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
         }
 
-        .ex-btn.active {
-            border-color: var(--yellow-accent);
-            color: var(--yellow-accent);
-            background: #1e2c28;
+        .p-tab-btn.active {
+            background-color: var(--yellow-main);
+            color: var(--bg-dark);
+            border-color: var(--yellow-main);
+            font-weight: 700;
+        }
+
+        /* Learn Interactive Modules */
+        .practice-container {
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* Flashcard Component */
+        .flashcard-wrapper {
+            perspective: 1000px;
+            height: 320px;
+            margin-bottom: 24px;
+            cursor: pointer;
         }
 
         .flashcard {
-            background: var(--bg-dark);
-            border: 2px solid var(--yellow-accent);
-            border-radius: 12px;
-            padding: 40px;
-            text-align: center;
-            min-height: 200px;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: var(--radius-lg);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-card);
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            cursor: pointer;
-            margin-bottom: 20px;
-            user-select: none;
+            justify-content: center;
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
         }
 
-        .flashcard .word-title {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--yellow-accent);
+        .card-back {
+            transform: rotateY(180deg);
+            border-color: var(--yellow-main);
         }
 
-        .flashcard .pos-tag {
-            color: var(--text-muted);
-            font-style: italic;
-            margin-top: 5px;
+        .flashcard-word {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--yellow-main);
+            margin-bottom: 12px;
         }
 
-        .flashcard .meaning-text {
-            font-size: 20px;
-            margin-top: 15px;
+        .flashcard-meaning {
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--text-light);
-            display: none;
+            margin-bottom: 8px;
+        }
+
+        .hint-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 16px;
+        }
+
+        /* Practice Question Box */
+        .quiz-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .quiz-question {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-align: center;
+            color: var(--text-light);
+            line-height: 1.5;
         }
 
         .options-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-top: 15px;
+            margin-bottom: 20px;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 500px) {
             .options-grid { grid-template-columns: 1fr; }
         }
 
         .option-btn {
-            background: var(--bg-dark);
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
             color: var(--text-light);
-            border: 1px solid var(--card-border);
-            padding: 15px;
-            border-radius: 8px;
-            text-align: left;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 15px;
-            transition: all 0.2s;
+            text-align: left;
+            transition: all 0.2s ease;
         }
 
         .option-btn:hover {
-            border-color: var(--yellow-accent);
+            border-color: var(--yellow-main);
+            background-color: var(--bg-card-hover);
         }
 
         .option-btn.correct {
-            background: #14532d !important;
+            background-color: rgba(78, 190, 136, 0.2) !important;
             border-color: var(--success) !important;
-            color: white;
+            color: var(--success) !important;
         }
 
         .option-btn.wrong {
-            background: #7f1d1d !important;
+            background-color: rgba(232, 106, 106, 0.2) !important;
             border-color: var(--danger) !important;
-            color: white;
+            color: var(--danger) !important;
         }
 
-        /* MATCH GAME STYLES */
+        /* Match Game Grid */
         .match-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
         }
 
         .match-card {
-            background: var(--bg-dark);
-            border: 1px solid var(--card-border);
-            padding: 15px;
-            border-radius: 8px;
+            background-color: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px 10px;
             text-align: center;
+            font-size: 0.95rem;
+            font-weight: 700;
             cursor: pointer;
-            font-weight: bold;
+            transition: all 0.2s ease;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .match-card:hover {
+            border-color: var(--yellow-main);
         }
 
         .match-card.selected {
-            border-color: var(--yellow-accent);
-            background: #2a3a35;
-            color: var(--yellow-accent);
+            border-color: var(--yellow-main);
+            background-color: var(--yellow-alpha);
+            color: var(--yellow-main);
         }
 
         .match-card.matched {
             visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
         }
 
-        .bulk-import-box {
-            background: var(--bg-dark);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            border: 1px solid var(--card-border);
+        /* Toast Modal Alert */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--yellow-main);
+            color: var(--bg-dark);
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 800;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .feedback-msg {
-            margin-top: 15px;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 6px;
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Empty State */
+        .empty-state {
             text-align: center;
-            display: none;
+            padding: 60px 20px;
+            color: var(--text-muted);
         }
 
-        .feedback-msg.success { display: block; background: #14532d; color: #4ade80; }
-        .feedback-msg.error { display: block; background: #7f1d1d; color: #f87171; }
+        .empty-state i {
+            font-size: 3.5rem;
+            color: var(--yellow-main);
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
+    <!-- Header / Topbar -->
     <header>
-        <div class="brand">
-            🌱 Plant & Learn Vocab
-        </div>
-        <div class="user-profile">
-            <!-- Local User Info Container -->
-            <div id="userInfo" class="user-info">
-                <div id="userAvatar" class="user-avatar">U</div>
-                <span id="userName" style="font-size: 14px; font-weight: 600;">Học viên</span>
-                <button class="btn-action-sm" onclick="changeUserName()">Đổi tên</button>
+        <div class="header-container">
+            <a href="#" class="logo" onclick="goHome()">
+                <i class="fa-solid fa-seedling"></i>
+                <span>Vocab Garden</span>
+            </a>
+
+            <!-- Daily Attendance Widget -->
+            <div class="garden-status">
+                <div class="tree-stage">
+                    <span id="treeIcon" class="tree-icon">🌱</span>
+                    <div style="font-size: 0.8rem;">
+                        <div style="font-weight: 700; color: var(--text-light);" id="treeStageName">Mầm Non</div>
+                        <div style="color: var(--text-muted);" id="harvestCountdown">Cần 5 ngày nữa</div>
+                    </div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div id="gardenProgress" class="progress-bar-fill"></div>
+                </div>
+
+                <div class="streak-info">
+                    <i class="fa-solid fa-fire-flame-curved"></i>
+                    <span id="streakCount">0</span> ngày
+                </div>
+
+                <button id="btnWater" class="btn-water" onclick="waterGarden()">
+                    <i class="fa-solid fa-droplet"></i> Tưới Nước
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- NAVIGATION TABS -->
-    <nav>
-        <button class="nav-btn active" onclick="switchTab('vocabTab', event)">📖 Kho từ vựng</button>
-        <button class="nav-btn" onclick="switchTab('addTab', event)">➕ Thêm từ mới</button>
-        <button class="nav-btn" onclick="switchTab('learnTab', event)">🎯 Learn (Luyện tập)</button>
-        <button class="nav-btn" onclick="switchTab('reviewTab', event)">⏰ Cần ôn tập (<span id="reviewBadge">0</span>)</button>
-    </nav>
-
-    <!-- MAIN CONTENT AREA -->
+    <!-- Main Content Body -->
     <main>
-        <!-- WIDGET: TREE PLANTING (DAILY CHECK-IN) -->
-        <div class="tree-widget">
-            <h3 style="color: var(--yellow-accent);">🌱 Nông trại từ vựng (Điểm danh hàng ngày)</h3>
-            <div id="treeIcon" class="tree-stage-icon">🌱</div>
-            <p id="treeStatusText">Cây nhỏ đang lớn! Nước tưới hôm nay: <strong id="waterStatus">Chưa tưới</strong></p>
-            
-            <div class="progress-bar-container">
-                <div id="treeProgress" class="progress-bar"></div>
+
+        <!-- HOMEPAGE (4 Navigation Cards) -->
+        <div id="homePage" class="tab-content active">
+            <div style="text-align: center; margin-bottom: 36px;">
+                <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text-light); margin-bottom: 8px;">
+                    Chào mừng trở lại! 👋
+                </h1>
+                <p style="color: var(--text-muted);">Hãy chăm sóc cây từ vựng của bạn hôm nay nhé.</p>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-                Cấp độ hạt giống: <span id="treeLevelText">Giai đoạn 1 (0/5 ngày tưới)</span>
-            </p>
-            <button id="btnWater" class="btn-water" onclick="waterTree()">💧 Tưới nước hôm nay (+1 Ngày)</button>
+
+            <div class="home-grid">
+                <!-- Card 1: Vault -->
+                <div class="nav-card" onclick="switchTab('vaultTab')">
+                    <span id="vaultCountBadge" class="badge-count">0</span>
+                    <div class="nav-card-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+                    <h3>Kho Từ Vựng</h3>
+                    <p>Xem, quản lý và tìm kiếm tất cả các từ vựng bạn đã lưu trữ.</p>
+                </div>
+
+                <!-- Card 2: Add Word -->
+                <div class="nav-card" onclick="switchTab('addTab')">
+                    <div class="nav-card-icon"><i class="fa-solid fa-plus"></i></div>
+                    <h3>Thêm Từ Mới</h3>
+                    <p>Thêm từng từ thủ công hoặc nhập hàng loạt nhanh chóng.</p>
+                </div>
+
+                <!-- Card 3: Learn -->
+                <div class="nav-card" onclick="switchTab('learnTab')">
+                    <div class="nav-card-icon"><i class="fa-solid fa-brain"></i></div>
+                    <h3>Luyện Tập (Learn)</h3>
+                    <p>Luyện nhớ từ sâu qua Flashcard, Trắc nghiệm, Điền từ & Nối từ.</p>
+                </div>
+
+                <!-- Card 4: Review Due -->
+                <div class="nav-card" onclick="switchTab('reviewTab')">
+                    <span id="dueCountBadge" class="badge-count" style="background-color: var(--danger); color: white;">0</span>
+                    <div class="nav-card-icon" style="color: var(--danger); background: rgba(232, 106, 106, 0.15);">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <h3>Cần Ôn Tập Today</h3>
+                    <p>Các từ đã đến hạn Spaced Repetition cần ôn lại ngay hôm nay.</p>
+                </div>
+            </div>
         </div>
 
-        <!-- TAB 1: KHO TỪ VỰNG -->
-        <div id="vocabTab" class="tab-content active">
-            <h2>📖 Kho từ vựng của tôi</h2>
-            <div style="margin-bottom: 15px; display: flex; gap: 10px;">
-                <input type="text" id="searchVocab" placeholder="🔍 Tìm kiếm từ vựng hoặc nghĩa..." oninput="renderVocabList()">
+        <!-- TAB 1: KHO TỪ VỰNG (VAULT) -->
+        <div id="vaultTab" class="tab-content">
+            <button class="btn-back-home" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i> Trang Chủ</button>
+            
+            <div class="section-header">
+                <div class="section-title"><i class="fa-solid fa-book-bookmark"></i> Kho Từ Vựng</div>
+                <button class="btn btn-outline" onclick="exportData()"><i class="fa-solid fa-download"></i> Export Backup</button>
             </div>
-            <div class="table-responsive">
+
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm từ vựng, nghĩa..." oninput="renderVault()">
+            </div>
+
+            <div class="vocab-table-wrapper">
                 <table>
                     <thead>
                         <tr>
                             <th>Từ vựng (Word)</th>
-                            <th>Từ loại (PoS)</th>
-                            <th>Định nghĩa (Meaning)</th>
-                            <th>Cấp độ ôn</th>
-                            <th>Ngày ôn tiếp</th>
-                            <th>Thao tác</th>
+                            <th>Loại từ (POS)</th>
+                            <th>Nghĩa (Meaning)</th>
+                            <th>Cấp độ (Level)</th>
+                            <th>Lịch ôn</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
-                    <tbody id="vocabTableBody">
-                        <!-- Rendered by JS -->
+                    <tbody id="vaultTableBody">
+                        <!-- Render Javascript -->
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- TAB 2: THÊM TỪ MỚI -->
+        <!-- TAB 2: THÊM TỪ MỚI (ADD) -->
         <div id="addTab" class="tab-content">
-            <h2>➕ Thêm từ vựng mới</h2>
-            
-            <!-- Single Add Form -->
-            <form id="addSingleForm" onsubmit="handleSingleAdd(event)">
-                <div class="form-group">
-                    <label>Word (Từ vựng):</label>
-                    <input type="text" id="inputWord" placeholder="ví dụ: Procrastinate" required>
-                </div>
-                <div class="form-group">
-                    <label>Part of Speech (Từ loại):</label>
-                    <select id="inputPos">
-                        <option value="Verb">Verb (Động từ)</option>
-                        <option value="Noun">Noun (Danh từ)</option>
-                        <option value="Adjective">Adjective (Tính từ)</option>
-                        <option value="Adverb">Adverb (Phó từ)</option>
-                        <option value="Phrase">Phrase (Cụm từ)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Meaning (Nghĩa tiếng Việt):</label>
-                    <input type="text" id="inputMeaning" placeholder="ví dụ: Trì hoãn công việc" required>
-                </div>
-                <button type="submit" class="btn-primary">Lưu từ này</button>
-            </form>
+            <button class="btn-back-home" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i> Trang Chủ</button>
 
-            <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 30px 0;">
+            <div class="section-title" style="margin-bottom: 24px;"><i class="fa-solid fa-plus"></i> Thêm Từ Vựng</div>
 
-            <!-- Bulk Import Section -->
-            <div class="bulk-import-box">
-                <h3 style="color: var(--yellow-accent); margin-bottom: 10px;">⚡ Import nhanh hàng loạt (Bulk Import)</h3>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
-                    Cú pháp chuẩn: Giữa Word, Part of Speech, Meaning ngăn cách bằng dấu phẩy <code>,</code> và mỗi từ nằm trên 1 dòng <code>;</code> ở cuối hoặc xuống dòng.<br>
-                    <strong>Mẫu:</strong> <code>Accommodate, Verb, Đáp ứng nhu cầu;</code>
-                </p>
-                <textarea id="bulkInput" rows="5" placeholder="Accommodate, Verb, Đáp ứng nhu cầu;&#10;Reluctant, Adjective, Lưỡng lự miễn cưỡng;&#10;Ambiguous, Adjective, Mơ hồ khó hiểu"></textarea>
-                <button class="btn-primary" style="margin-top: 10px;" onclick="handleBulkImport()">Import ngay</button>
+            <div class="add-grid">
+                <!-- Manual Add Form -->
+                <div class="card-box">
+                    <h3 style="color: var(--yellow-main); margin-bottom: 18px;"><i class="fa-solid fa-pen"></i> Nhập Thủ Công</h3>
+                    <form id="addSingleForm">
+                        <div class="form-group">
+                            <label>Từ vựng (Word):</label>
+                            <input type="text" id="singleWord" class="form-control" placeholder="ví dụ: Procrastinate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Loại từ (Part of Speech):</label>
+                            <select id="singlePos" class="form-control">
+                                <option value="noun">noun (danh từ)</option>
+                                <option value="verb" selected>verb (động từ)</option>
+                                <option value="adjective">adjective (tính từ)</option>
+                                <option value="adverb">adverb (trạng từ)</option>
+                                <option value="phrase">phrase (cụm từ)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Định nghĩa / Nghĩa (Meaning):</label>
+                            <input type="text" id="singleMeaning" class="form-control" placeholder="ví dụ: Trì hoãn công việc" required>
+                        </div>
+                        <button type="submit" class="btn" style="width: 100%;"><i class="fa-solid fa-floppy-disk"></i> Lưu Từ Này</button>
+                    </form>
+                </div>
+
+                <!-- Batch Bulk Import -->
+                <div class="card-box">
+                    <h3 style="color: var(--yellow-main); margin-bottom: 18px;"><i class="fa-solid fa-bolt"></i> Import Hàng Loạt</h3>
+                    
+                    <div class="import-box">
+                        Cú pháp quy định:<br>
+                        Giữa Word, POS, Meaning phân cách bằng dấu phẩy <code>,</code><br>
+                        Mỗi từ nằm trên <code>1 dòng</code>.<br><br>
+                        <strong>Ví dụ mẫu:</strong><br>
+                        <code>Accommodate, verb, Cung cấp chỗ ở</code><br>
+                        <code>Comprehensive, adjective, Toàn diện</code>
+                    </div>
+
+                    <form id="addBulkForm">
+                        <div class="form-group">
+                            <textarea id="bulkText" class="form-control" placeholder="Dán danh sách từ vựng của bạn vào đây..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-outline" style="width: 100%;"><i class="fa-solid fa-file-import"></i> Import Danh Sách</button>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <!-- TAB 3: LEARN (LUYỆN TẬP TỰ DO) -->
+        <!-- TAB 3: LEARN (PRACTICE) -->
         <div id="learnTab" class="tab-content">
-            <h2>🎯 Luyện tập ghi nhớ (Learn Mode)</h2>
-            <div class="exercise-selector">
-                <button class="ex-btn active" onclick="setExerciseMode('flashcard', event)">🃏 Flashcard</button>
-                <button class="ex-btn" onclick="setExerciseMode('quiz', event)">❓ Trắc nghiệm 4 đáp án</button>
-                <button class="ex-btn" onclick="setExerciseMode('spelling', event)">✍️ Gõ chính tả</button>
-                <button class="ex-btn" onclick="setExerciseMode('match', event)">🧩 Nối từ (Match)</button>
-                <button class="ex-btn" onclick="setExerciseMode('fillBlank', event)">📝 Fill in blanks</button>
-                <button class="ex-btn" onclick="setExerciseMode('errorCorrection', event)">🛠️ Sửa lỗi sai</button>
+            <button class="btn-back-home" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i> Trang Chủ</button>
+
+            <div class="section-title" style="margin-bottom: 20px;"><i class="fa-solid fa-brain"></i> Luyện Tập & Ghi Nhớ</div>
+
+            <!-- Practice Mode Selector -->
+            <div class="practice-tabs">
+                <button class="p-tab-btn active" onclick="setPracticeMode('flashcard')"><i class="fa-solid fa-clone"></i> Flashcard</button>
+                <button class="p-tab-btn" onclick="setPracticeMode('mcq')"><i class="fa-solid fa-list-check"></i> Trắc Nghiệm 4 Đáp Án</button>
+                <button class="p-tab-btn" onclick="setPracticeMode('spelling')"><i class="fa-solid fa-keyboard"></i> Gõ Từ (Chính Tả)</button>
+                <button class="p-tab-btn" onclick="setPracticeMode('fill')"><i class="fa-solid fa-pen-to-square"></i> Điền Vào Chỗ Trống</button>
+                <button class="p-tab-btn" onclick="setPracticeMode('match')"><i class="fa-solid fa-puzzle-piece"></i> Nối Từ (Match)</button>
             </div>
 
-            <div id="exerciseContainer">
-                <!-- Dynamic exercise content -->
+            <div class="practice-container" id="practiceContainer">
+                <!-- Practice Mode UI Auto Generated by JS -->
             </div>
         </div>
 
-        <!-- TAB 4: CẦN ÔN TẬP (SPACED REPETITION) -->
+        <!-- TAB 4: REVIEW DUE (SPACED REPETITION) -->
         <div id="reviewTab" class="tab-content">
-            <h2>⏰ Danh sách từ cần ôn hôm nay (Day D)</h2>
-            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">
-                Các từ dưới đây đã đến lịch Spaced Repetition cần ôn tập để đưa vào bộ nhớ vĩnh viễn.
-            </p>
+            <button class="btn-back-home" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i> Trang Chủ</button>
 
-            <div id="reviewExerciseArea">
-                <!-- Render Review Cards/Exercises -->
+            <div class="section-title" style="margin-bottom: 20px; color: var(--danger);">
+                <i class="fa-solid fa-clock-rotate-left"></i> Cần Ôn Tập Hôm Nay
+            </div>
+
+            <div class="practice-container" id="reviewContainer">
+                <!-- Review Engine JS -->
             </div>
         </div>
+
     </main>
 
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Thông báo ở đây!</div>
+
     <script>
-        // ==================== APP STATE & DATA ====================
-        const INTERVALS = [1, 3, 7, 14, 30, 60]; // Spaced repetition days
+        // --- DATA STRUCTURE & STATE MANAGEMENT ---
+        const INTERVALS = [1, 3, 7, 14, 30, 60];
         
-        let vocabList = JSON.parse(localStorage.getItem('plant_vocab_data')) || [
-            { id: 1, word: 'Accommodate', pos: 'Verb', meaning: 'Đáp ứng nhu cầu, cung cấp chỗ ở', level: 0, nextReview: getTodayStr() },
-            { id: 2, word: 'Procrastinate', pos: 'Verb', meaning: 'Trì hoãn công việc', level: 1, nextReview: getTodayStr() },
-            { id: 3, word: 'Reluctant', pos: 'Adjective', meaning: 'Lưỡng lự, miễn cưỡng', level: 2, nextReview: '2026-08-25' }
+        let vocabList = JSON.parse(localStorage.getItem('vg_vocab_list')) || [
+            { id: 1, word: 'Procrastinate', pos: 'verb', meaning: 'Trì hoãn công việc', level: 0, nextReview: getTodayStr() },
+            { id: 2, word: 'Accommodate', pos: 'verb', meaning: 'Đáp ứng nhu cầu, chỗ ở', level: 1, nextReview: getTodayStr() },
+            { id: 3, word: 'Comprehensive', pos: 'adjective', meaning: 'Toàn diện, bao quát', level: 2, nextReview: '2026-12-31' }
         ];
 
-        let treeState = JSON.parse(localStorage.getItem('plant_tree_data')) || {
+        let gardenState = JSON.parse(localStorage.getItem('vg_garden_state')) || {
             streak: 0,
-            lastWatered: null,
-            stage: 1
+            lastWatered: '',
+            waterCount: 0
         };
 
-        let currentExerciseMode = 'flashcard';
-        let currentUser = JSON.parse(localStorage.getItem('plant_user')) || { name: 'Học viên' };
+        let currentPracticeMode = 'flashcard';
+        let practiceIndex = 0;
+        let matchSelected = null;
 
-        // ==================== HELPER FUNCTIONS ====================
+        // --- UTILITY FUNCTIONS ---
         function getTodayStr() {
             return new Date().toISOString().split('T')[0];
         }
 
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
         function saveData() {
-            localStorage.setItem('plant_vocab_data', JSON.stringify(vocabList));
-            localStorage.setItem('plant_tree_data', JSON.stringify(treeState));
-            localStorage.setItem('plant_user', JSON.stringify(currentUser));
-            updateBadges();
+            localStorage.setItem('vg_vocab_list', JSON.stringify(vocabList));
+            localStorage.setItem('vg_garden_state', JSON.stringify(gardenState));
+            updateBadgesAndHeader();
         }
 
-        // ==================== USER MANAGEMENT (LOCALSTORAGE) ====================
-        function renderUserUI() {
-            document.getElementById('userName').innerText = currentUser.name;
-            document.getElementById('userAvatar').innerText = currentUser.name.charAt(0).toUpperCase();
+        function goHome() {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('homePage').classList.add('active');
+            updateBadgesAndHeader();
         }
 
-        function changeUserName() {
-            const newName = prompt("Nhập tên mới của bạn:", currentUser.name);
-            if (newName && newName.trim() !== "") {
-                currentUser.name = newName.trim();
-                saveData();
-                renderUserUI();
-            }
-        }
-
-        // ==================== NAVIGATION ====================
-        function switchTab(tabId, evt) {
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(nb => nb.classList.remove('active'));
-
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            if (evt) evt.target.classList.add('active');
 
-            if (tabId === 'vocabTab') renderVocabList();
-            if (tabId === 'learnTab') renderLearnMode();
-            if (tabId === 'reviewTab') renderReviewMode();
+            if(tabId === 'vaultTab') renderVault();
+            if(tabId === 'learnTab') initPractice();
+            if(tabId === 'reviewTab') initReview();
         }
 
-        function updateBadges() {
+        // --- DAILY ATTENDANCE & GARDEN LOGIC ---
+        function updateBadgesAndHeader() {
+            // Badges
+            document.getElementById('vaultCountBadge').innerText = vocabList.length;
             const today = getTodayStr();
-            const dueList = vocabList.filter(item => item.nextReview <= today);
-            document.getElementById('reviewBadge').innerText = dueList.length;
-        }
+            const dueList = vocabList.filter(v => v.nextReview <= today);
+            document.getElementById('dueCountBadge').innerText = dueList.length;
 
-        // ==================== TREE PLANTING (CHECK-IN) ====================
-        function renderTree() {
-            const icons = ['🌱', '🌿', '🌸', '🌳'];
-            const stages = ['Giai đoạn 1: Mầm cây', 'Giai đoạn 2: Cây con', 'Giai đoạn 3: Ra hoa', 'Giai đoạn 4: Thu hoạch! 🎉'];
-            
-            let stageIdx = Math.min(Math.floor(treeState.streak / 5), 3);
-            treeState.stage = stageIdx + 1;
-
-            document.getElementById('treeIcon').innerText = icons[stageIdx];
-            
-            let progressPct = ((treeState.streak % 5) / 5) * 100;
-            if (treeState.streak >= 20) progressPct = 100;
-            
-            document.getElementById('treeProgress').style.width = progressPct + '%';
-            document.getElementById('treeLevelText').innerText = `${stages[stageIdx]} (${treeState.streak}/20 ngày)`;
-
-            const today = getTodayStr();
+            // Garden Widget
+            const todayDate = getTodayStr();
             const btnWater = document.getElementById('btnWater');
-            const waterStatus = document.getElementById('waterStatus');
-
-            if (treeState.lastWatered === today) {
+            if (gardenState.lastWatered === todayDate) {
                 btnWater.disabled = true;
-                btnWater.innerText = '✅ Đã tưới hôm nay';
-                waterStatus.innerText = 'Đã tưới';
-                waterStatus.style.color = 'var(--yellow-accent)';
+                btnWater.innerHTML = '<i class="fa-solid fa-check"></i> Đã Tưới Hôm Nay';
             } else {
                 btnWater.disabled = false;
-                btnWater.innerText = '💧 Tưới nước hôm nay (+1 Ngày)';
-                waterStatus.innerText = 'Chưa tưới';
-                waterStatus.style.color = 'var(--danger)';
+                btnWater.innerHTML = '<i class="fa-solid fa-droplet"></i> Tưới Nước';
             }
-        }
 
-        function waterTree() {
-            const today = getTodayStr();
-            if (treeState.lastWatered !== today) {
-                treeState.streak += 1;
-                treeState.lastWatered = today;
-                saveData();
-                renderTree();
-                alert('🎉 Bạn đã tưới nước thành công! Cây từ vựng tăng thêm 1 ngày tăng trưởng.');
-            }
-        }
+            document.getElementById('streakCount').innerText = gardenState.streak;
 
-        // ==================== VOCAB LIST ====================
-        function renderVocabList() {
-            const tbody = document.getElementById('vocabTableBody');
-            const query = document.getElementById('searchVocab').value.toLowerCase();
+            // Stage Tree logic (harvest every 5 waterings)
+            const stage = Math.floor(gardenState.waterCount / 5);
+            const progress = (gardenState.waterCount % 5) * 20;
+            const daysLeft = 5 - (gardenState.waterCount % 5);
+
+            document.getElementById('gardenProgress').style.width = progress + '%';
+            document.getElementById('harvestCountdown').innerText = `Cần ${daysLeft} ngày nữa để thu hoạch`;
+
+            const stagesIcons = ['🌱', '🌿', '🪴', '🌳', '🍎'];
+            const stagesNames = ['Hạt Mầm', 'Cây Con', 'Cây Phát Triển', 'Cây Cổ Thụ', 'Cây Trái Chín'];
             
+            const currentStageIdx = Math.min(stage, stagesIcons.length - 1);
+            document.getElementById('treeIcon').innerText = stagesIcons[currentStageIdx];
+            document.getElementById('treeStageName').innerText = stagesNames[currentStageIdx];
+        }
+
+        function waterGarden() {
+            const today = getTodayStr();
+            if (gardenState.lastWatered === today) return;
+
+            gardenState.waterCount += 1;
+            gardenState.streak += 1;
+            gardenState.lastWatered = today;
+
+            saveData();
+            showToast('🎉 Bạn đã tưới nước điểm danh thành công!');
+        }
+
+        // --- TAB 1: VAULT MANAGEMENT ---
+        function renderVault() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const tbody = document.getElementById('vaultTableBody');
+
             const filtered = vocabList.filter(v => 
                 v.word.toLowerCase().includes(query) || v.meaning.toLowerCase().includes(query)
             );
 
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">Chưa có từ vựng nào phù hợp.</td></tr>`;
+                return;
+            }
+
             tbody.innerHTML = filtered.map(v => `
                 <tr>
-                    <td><strong>${v.word}</strong></td>
-                    <td><span class="badge">${v.pos}</span></td>
+                    <td><strong style="color: var(--yellow-main); font-size: 1.05rem;">${v.word}</strong></td>
+                    <td><span class="pos-badge">${v.pos || 'n/a'}</span></td>
                     <td>${v.meaning}</td>
-                    <td>Level ${v.level}</td>
-                    <td>${v.nextReview}</td>
-                    <td><button onclick="deleteVocab(${v.id})" style="background:none;border:none;color:var(--danger);cursor:pointer;">🗑️ Xóa</button></td>
+                    <td><span style="font-weight: 700;">Lvl ${v.level}</span></td>
+                    <td><span style="color: var(--text-muted); font-size: 0.85rem;">${v.nextReview}</span></td>
+                    <td>
+                        <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="deleteWord(${v.id})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
                 </tr>
             `).join('');
         }
 
-        function deleteVocab(id) {
-            if (confirm('Bạn có chắc muốn xóa từ này?')) {
+        function deleteWord(id) {
+            if (confirm('Bạn có chắc muốn xóa từ này khỏi kho?')) {
                 vocabList = vocabList.filter(v => v.id !== id);
                 saveData();
-                renderVocabList();
+                renderVault();
+                showToast('Đã xóa từ vựng!');
             }
         }
 
-        // ==================== ADD VOCAB ====================
-        function handleSingleAdd(e) {
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(vocabList));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "vocab_garden_backup.json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        // --- TAB 2: ADD WORD LOGIC ---
+        document.getElementById('addSingleForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const word = document.getElementById('inputWord').value.trim();
-            const pos = document.getElementById('inputPos').value;
-            const meaning = document.getElementById('inputMeaning').value.trim();
+            const word = document.getElementById('singleWord').value.trim();
+            const pos = document.getElementById('singlePos').value;
+            const meaning = document.getElementById('singleMeaning').value.trim();
 
-            if (word && meaning) {
-                vocabList.push({
-                    id: Date.now(),
-                    word,
-                    pos,
-                    meaning,
-                    level: 0,
-                    nextReview: getTodayStr()
-                });
-                saveData();
-                document.getElementById('addSingleForm').reset();
-                alert('Đã thêm từ mới thành công!');
-            }
-        }
+            vocabList.push({
+                id: Date.now(),
+                word, pos, meaning,
+                level: 0,
+                nextReview: getTodayStr()
+            });
 
-        function handleBulkImport() {
-            const text = document.getElementById('bulkInput').value.trim();
-            if (!text) return;
+            saveData();
+            this.reset();
+            showToast('Thêm từ mới thành công!');
+        });
 
-            const lines = text.split(/;|\n/);
+        document.getElementById('addBulkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const text = document.getElementById('bulkText').value.trim();
+            const lines = text.split('
+');
             let addedCount = 0;
 
             lines.forEach(line => {
-                const parts = line.split(',').map(p => p.trim());
+                const parts = line.split(',');
                 if (parts.length >= 3) {
                     vocabList.push({
                         id: Date.now() + Math.random(),
-                        word: parts[0],
-                        pos: parts[1],
-                        meaning: parts[2],
+                        word: parts[0].trim(),
+                        pos: parts[1].trim().toLowerCase(),
+                        meaning: parts[2].trim(),
                         level: 0,
                         nextReview: getTodayStr()
                     });
@@ -766,177 +1112,230 @@
             });
 
             saveData();
-            document.getElementById('bulkInput').value = '';
-            alert(`Đã import thành công ${addedCount} từ vựng!`);
+            this.reset();
+            showToast(`Đã import thành công ${addedCount} từ mới!`);
+        });
+
+        // --- TAB 3: LEARN PRACTICE ENGINE ---
+        function setPracticeMode(mode) {
+            currentPracticeMode = mode;
+            document.querySelectorAll('.p-tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            practiceIndex = 0;
+            initPractice();
         }
 
-        // ==================== LEARN MODE EXERCISES ====================
-        function setExerciseMode(mode, evt) {
-            currentExerciseMode = mode;
-            document.querySelectorAll('.ex-btn').forEach(b => b.classList.remove('active'));
-            if (evt) evt.target.classList.add('active');
-            renderLearnMode();
-        }
-
-        function renderLearnMode() {
-            const container = document.getElementById('exerciseContainer');
+        function initPractice() {
+            const container = document.getElementById('practiceContainer');
             if (vocabList.length === 0) {
-                container.innerHTML = '<p>Kho từ vựng đang trống. Hãy thêm từ mới trước!</p>';
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><h3>Kho từ vựng đang trống.</h3><p>Hãy thêm từ mới để bắt đầu luyện tập nhé!</p></div>`;
                 return;
             }
 
-            const current = vocabList[Math.floor(Math.random() * vocabList.length)];
-
-            if (currentExerciseMode === 'flashcard') {
-                container.innerHTML = `
-                    <div class="flashcard" onclick="toggleFlashcardMeaning()">
-                        <div class="word-title">${current.word}</div>
-                        <div class="pos-tag">(${current.pos})</div>
-                        <div id="fcMeaning" class="meaning-text">${current.meaning}</div>
-                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 20px;">(Bấm để lật xem nghĩa)</p>
-                    </div>
-                    <button class="btn-primary" onclick="renderLearnMode()">Từ tiếp theo ➔</button>
-                `;
-            } else if (currentExerciseMode === 'quiz') {
-                let options = [current.meaning];
-                while (options.length < 4 && options.length < vocabList.length) {
-                    let randM = vocabList[Math.floor(Math.random() * vocabList.length)].meaning;
-                    if (!options.includes(randM)) options.push(randM);
-                }
-                options.sort(() => Math.random() - 0.5);
-
-                container.innerHTML = `
-                    <h3 style="color:var(--yellow-accent); margin-bottom: 10px;">Chọn nghĩa đúng cho từ: <span style="font-size:24px;">${current.word}</span> (${current.pos})</h3>
-                    <div class="options-grid">
-                        ${options.map(opt => `
-                            <button class="option-btn" onclick="checkQuiz(this, '${opt === current.meaning}')">${opt}</button>
-                        `).join('')}
-                    </div>
-                    <button class="btn-primary" style="margin-top:20px;" onclick="renderLearnMode()">Từ tiếp theo ➔</button>
-                `;
-            } else if (currentExerciseMode === 'spelling') {
-                container.innerHTML = `
-                    <h3 style="color:var(--yellow-accent); margin-bottom: 10px;">Gõ từ vựng tiếng Anh cho nghĩa:</h3>
-                    <p style="font-size: 20px; margin-bottom: 15px;">"${current.meaning}" (${current.pos})</p>
-                    <input type="text" id="spellingInput" placeholder="Nhập từ ở đây..." style="margin-bottom:15px;">
-                    <button class="btn-primary" onclick="checkSpelling('${current.word}')">Kiểm tra</button>
-                    <div id="spellingFeedback" class="feedback-msg"></div>
-                `;
-            } else if (currentExerciseMode === 'match') {
-                renderMatchGame(container);
-            } else if (currentExerciseMode === 'fillBlank') {
-                container.innerHTML = `
-                    <h3 style="color:var(--yellow-accent); margin-bottom:10px;">Điền từ thích hợp vào chỗ trống:</h3>
-                    <p style="font-size: 18px; margin-bottom:15px;">"The team had to ________ to the client's new demands." (Nghĩa: ${current.meaning})</p>
-                    <input type="text" id="fillInput" placeholder="Nhập từ..." style="margin-bottom:15px;">
-                    <button class="btn-primary" onclick="checkSpelling('${current.word}')">Kiểm tra</button>
-                    <div id="spellingFeedback" class="feedback-msg"></div>
-                `;
-            } else if (currentExerciseMode === 'errorCorrection') {
-                container.innerHTML = `
-                    <h3 style="color:var(--yellow-accent); margin-bottom:10px;">Sửa lỗi sai trong câu:</h3>
-                    <p style="font-size: 16px; margin-bottom:15px;">Câu sai: "We need to <i>${current.word}ing</i> their request."</p>
-                    <p style="color:var(--text-muted);">Sửa lại từ nguyên mẫu chuẩn:</p>
-                    <input type="text" id="errorInput" placeholder="Nhập từ đúng..." style="margin-bottom:15px;">
-                    <button class="btn-primary" onclick="checkSpelling('${current.word}')">Xác nhận</button>
-                    <div id="spellingFeedback" class="feedback-msg"></div>
-                `;
-            }
+            if (currentPracticeMode === 'flashcard') renderFlashcardMode(container);
+            else if (currentPracticeMode === 'mcq') renderMCQMode(container);
+            else if (currentPracticeMode === 'spelling') renderSpellingMode(container);
+            else if (currentPracticeMode === 'fill') renderFillMode(container);
+            else if (currentPracticeMode === 'match') renderMatchMode(container);
         }
 
-        function toggleFlashcardMeaning() {
-            const m = document.getElementById('fcMeaning');
-            m.style.display = m.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function checkQuiz(btn, isCorrect) {
-            if (isCorrect === 'true') {
-                btn.classList.add('correct');
-            } else {
-                btn.classList.add('wrong');
-            }
-        }
-
-        function checkSpelling(correctWord) {
-            const input = document.getElementById('spellingInput') || document.getElementById('fillInput') || document.getElementById('errorInput');
-            const fb = document.getElementById('spellingFeedback');
-            if (input.value.trim().toLowerCase() === correctWord.toLowerCase()) {
-                fb.className = 'feedback-msg success';
-                fb.innerText = '🎉 Chính xác! Bạn giỏi lắm.';
-            } else {
-                fb.className = 'feedback-msg error';
-                fb.innerText = `❌ Chưa đúng! Đáp án chuẩn là: ${correctWord}`;
-            }
-        }
-
-        function renderMatchGame(container) {
-            let sample = vocabList.slice(0, 4);
-            if (sample.length < 2) {
-                container.innerHTML = '<p>Cần ít nhất 2 từ vựng để chơi trò nối từ!</p>';
-                return;
-            }
-
-            let words = sample.map(s => ({ id: s.id, text: s.word, type: 'word' }));
-            let meanings = sample.map(s => ({ id: s.id, text: s.meaning, type: 'meaning' }));
-            let allCards = [...words, ...meanings].sort(() => Math.random() - 0.5);
-
+        // 1. Flashcard Mode
+        function renderFlashcardMode(container) {
+            const current = vocabList[practiceIndex % vocabList.length];
             container.innerHTML = `
-                <h3 style="color:var(--yellow-accent); margin-bottom: 15px;">Ghép từ với nghĩa tương ứng:</h3>
-                <div class="match-grid">
-                    ${allCards.map((c, i) => `
-                        <div class="match-card" data-id="${c.id}" onclick="selectMatchCard(this)">${c.text}</div>
-                    `).join('')}
+                <div class="flashcard-wrapper" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+                    <div class="flashcard">
+                        <div class="card-front">
+                            <span class="pos-badge" style="margin-bottom: 12px;">${current.pos}</span>
+                            <div class="flashcard-word">${current.word}</div>
+                            <div class="hint-text"><i class="fa-solid fa-rotate"></i> Chạm để lật mặt sau</div>
+                        </div>
+                        <div class="card-back">
+                            <div class="flashcard-meaning">${current.meaning}</div>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn-primary" style="margin-top:20px;" onclick="renderLearnMode()">Lượt mới 🔄</button>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-outline" style="flex:1;" onclick="prevPractice()"><i class="fa-solid fa-chevron-left"></i> Từ Trước</button>
+                    <button class="btn" style="flex:1;" onclick="nextPractice()">Từ Tiếp <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
             `;
         }
 
-        let selectedMatch = null;
-        function selectMatchCard(card) {
-            if (selectedMatch === null) {
-                selectedMatch = card;
-                card.classList.add('selected');
-            } else {
-                if (selectedMatch === card) {
-                    card.classList.remove('selected');
-                    selectedMatch = null;
-                    return;
-                }
+        // 2. MCQ 4 Đáp Án Mode
+        function renderMCQMode(container) {
+            const current = vocabList[practiceIndex % vocabList.length];
+            let options = [current.meaning];
+            
+            // Random wrong options
+            let otherMeanings = vocabList.filter(v => v.id !== current.id).map(v => v.meaning);
+            otherMeanings = otherMeanings.sort(() => 0.5 - Math.random());
+            options = options.concat(otherMeanings.slice(0, 3));
+            options.sort(() => 0.5 - Math.random());
 
-                if (selectedMatch.dataset.id === card.dataset.id) {
-                    selectedMatch.classList.add('matched');
-                    card.classList.add('matched');
-                } else {
-                    selectedMatch.classList.remove('selected');
-                }
-                selectedMatch = null;
+            container.innerHTML = `
+                <div class="quiz-card">
+                    <div style="text-align:center; margin-bottom: 12px;"><span class="pos-badge">${current.pos}</span></div>
+                    <div class="quiz-question">Từ <span style="color: var(--yellow-main);">'${current.word}'</span> có nghĩa là gì?</div>
+                    <div class="options-grid">
+                        ${options.map(opt => `
+                            <button class="option-btn" onclick="checkMCQ(this, '${opt === current.meaning}')">${opt}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkMCQ(btn, isCorrect) {
+            if (isCorrect === 'true') {
+                btn.classList.add('correct');
+                showToast('✨ Chính xác!');
+                setTimeout(() => nextPractice(), 1000);
+            } else {
+                btn.classList.add('wrong');
+                showToast('❌ Chưa đúng rồi!');
             }
         }
 
-        // ==================== REVIEW MODE (DAY D) ====================
-        function renderReviewMode() {
+        // 3. Spelling (Chính tả) Mode
+        function renderSpellingMode(container) {
+            const current = vocabList[practiceIndex % vocabList.length];
+            container.innerHTML = `
+                <div class="quiz-card">
+                    <div class="quiz-question">Hãy gõ đúng từ tiếng Anh mang nghĩa:<br><strong style="color: var(--yellow-main);">${current.meaning}</strong></div>
+                    <form onsubmit="checkSpelling(event, '${current.word}')">
+                        <div class="form-group">
+                            <input type="text" id="spellingInput" class="form-control" placeholder="Gõ từ tiếng Anh tại đây..." autocomplete="off" required>
+                        </div>
+                        <button type="submit" class="btn" style="width:100%;">Kiểm Tra</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        function checkSpelling(e, targetWord) {
+            e.preventDefault();
+            const val = document.getElementById('spellingInput').value.trim();
+            if (val.toLowerCase() === targetWord.toLowerCase()) {
+                showToast('🎉 Chuẩn xác!');
+                nextPractice();
+            } else {
+                showToast(`❌ Sai rồi! Đáp án đúng là: ${targetWord}`);
+            }
+        }
+
+        // 4. Fill in Blanks Mode
+        function renderFillMode(container) {
+            const current = vocabList[practiceIndex % vocabList.length];
+            container.innerHTML = `
+                <div class="quiz-card">
+                    <div class="quiz-question">Điền từ phù hợp vào chỗ trống:<br><br>
+                    Meaning: <em>${current.meaning}</em><br>
+                    Word: <strong style="color: var(--yellow-main); letter-spacing: 2px;">${current.word[0]} _ _ _ _</strong> (${current.word.length} ký tự)
+                    </div>
+                    <form onsubmit="checkSpelling(event, '${current.word}')">
+                        <div class="form-group">
+                            <input type="text" id="spellingInput" class="form-control" placeholder="Nhập đầy đủ từ..." autocomplete="off" required>
+                        </div>
+                        <button type="submit" class="btn" style="width:100%;">Hoàn Thành</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        // 5. Match (Nối từ) Mode
+        function renderMatchMode(container) {
+            const sample = vocabList.slice(0, 4);
+            let items = [];
+            sample.forEach(v => {
+                items.push({ id: v.id, text: v.word, type: 'word' });
+                items.push({ id: v.id, text: v.meaning, type: 'meaning' });
+            });
+            items.sort(() => 0.5 - Math.random());
+
+            container.innerHTML = `
+                <div class="match-grid">
+                    ${items.map(it => `
+                        <div class="match-card" data-id="${it.id}" onclick="handleMatch(this)">${it.text}</div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function handleMatch(card) {
+            if (card.classList.contains('matched')) return;
+
+            if (!matchSelected) {
+                matchSelected = card;
+                card.classList.add('selected');
+            } else {
+                if (matchSelected === card) {
+                    card.classList.remove('selected');
+                    matchSelected = null;
+                } else if (matchSelected.dataset.id === card.dataset.id) {
+                    // Match Success
+                    card.classList.add('matched');
+                    matchSelected.classList.add('matched');
+                    matchSelected = null;
+                    showToast('🧩 Ghép đúng!');
+                } else {
+                    // Match Failed
+                    matchSelected.classList.remove('selected');
+                    matchSelected = null;
+                    showToast('❌ Ghép sai rồi!');
+                }
+            }
+        }
+
+        function nextPractice() {
+            practiceIndex++;
+            initPractice();
+        }
+
+        function prevPractice() {
+            if (practiceIndex > 0) practiceIndex--;
+            initPractice();
+        }
+
+        // --- TAB 4: REVIEW DUE ENGINE (SPACED REPETITION) ---
+        function initReview() {
+            const container = document.getElementById('reviewContainer');
             const today = getTodayStr();
-            const dueWords = vocabList.filter(item => item.nextReview <= today);
-            const container = document.getElementById('reviewExerciseArea');
+            const dueWords = vocabList.filter(v => v.nextReview <= today);
 
             if (dueWords.length === 0) {
-                container.innerHTML = '<h3>🎉 Tuyệt vời! Bạn không có từ nào cần ôn tập hôm nay.</h3>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-circle-check" style="color: var(--success); opacity:1;"></i>
+                        <h3>Tuyệt vời! Bạn không còn từ nào cần ôn hôm nay.</h3>
+                        <p>Hãy quay lại vào ngày mai hoặc vào mục Luyện Tập để học từ mới nhé!</p>
+                    </div>
+                `;
                 return;
             }
 
             const current = dueWords[0];
             container.innerHTML = `
-                <div class="flashcard">
-                    <div class="word-title">${current.word}</div>
-                    <div class="pos-tag">(${current.pos})</div>
-                    <div id="reviewMeaning" class="meaning-text" style="display:none; margin-top: 15px;">${current.meaning}</div>
-                </div>
+                <div class="quiz-card">
+                    <div style="text-align:center; margin-bottom: 12px;"><span class="pos-badge">${current.pos}</span></div>
+                    <div class="flashcard-word" style="text-align:center;">${current.word}</div>
+                    
+                    <div id="reviewAnswerBox" style="display:none; margin-top:20px; text-align:center; border-top: 1px dashed var(--border-color); padding-top:20px;">
+                        <div class="flashcard-meaning" style="margin-bottom:20px;">${current.meaning}</div>
+                        
+                        <div style="display:flex; gap:12px;">
+                            <button class="btn btn-danger" style="flex:1;" onclick="processReviewResult(${current.id}, false)">
+                                ❌ Quên (Học Lại)
+                            </button>
+                            <button class="btn" style="flex:1; background-color: var(--success); color: white;" onclick="processReviewResult(${current.id}, true)">
+                                ✅ Thuộc (+Lên Cấp)
+                            </button>
+                        </div>
+                    </div>
 
-                <button class="btn-primary" id="btnShowReview" onclick="document.getElementById('reviewMeaning').style.display='block'; this.style.display='none'; document.getElementById('reviewActionBtns').style.display='flex';">Hiện đáp án</button>
-
-                <div id="reviewActionBtns" style="display:none; gap:10px; margin-top:15px;">
-                    <button class="btn-primary" style="background:var(--danger); color:white;" onclick="processReviewResult(${current.id}, false)">❌ Quên rồi (Reset Level)</button>
-                    <button class="btn-primary" style="background:var(--success); color:white;" onclick="processReviewResult(${current.id}, true)">✅ Đã nhớ (+Tăng Level)</button>
+                    <button id="btnShowReviewAnswer" class="btn" style="width:100%; margin-top:20px;" onclick="document.getElementById('reviewAnswerBox').style.display='block'; this.style.display='none';">
+                        <i class="fa-solid fa-eye"></i> Xem Đáp Án
+                    </button>
                 </div>
             `;
         }
@@ -956,14 +1355,11 @@
             item.nextReview = today.toISOString().split('T')[0];
 
             saveData();
-            renderReviewMode();
+            initReview();
         }
 
-        // ==================== INITIALIZATION ====================
-        renderUserUI();
-        renderTree();
-        updateBadges();
-        renderVocabList();
+        // --- INIT APP ---
+        updateBadgesAndHeader();
     </script>
 </body>
 </html>
