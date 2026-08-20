@@ -1,1041 +1,390 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vocab Garden - Spaced Repetition</title>
-    <!-- Google Fonts & Font Awesome Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        :root {
-            --bg-dark: #1A2421;
-            --bg-card: #24322E;
-            --bg-card-hover: #2D3E3A;
-            --yellow-main: #fdfd96;
-            --yellow-hover: #e6e67e;
-            --yellow-alpha: rgba(253, 253, 150, 0.15);
-            --text-light: #E8EFEF;
-            --text-muted: #9AADA8;
-            --border-color: #31443F;
-            --success: #4EBE88;
-            --danger: #E86A6A;
-            --radius-lg: 16px;
-            --radius-md: 12px;
-            --radius-sm: 8px;
-            --shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
-
-        /* Top Header */
-        header {
-            background-color: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            padding: 14px 24px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: var(--yellow-main);
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        /* Garden Widget */
-        .garden-status {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            background-color: var(--bg-dark);
-            padding: 8px 16px;
-            border-radius: 50px;
-            border: 1px solid var(--border-color);
-        }
-
-        .streak-info {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--yellow-main);
-        }
-
-        .tree-stage {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .tree-icon {
-            font-size: 1.4rem;
-        }
-
-        .progress-bar-container {
-            width: 80px;
-            height: 8px;
-            background: var(--bg-card);
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: var(--yellow-main);
-            width: 0%;
-            transition: width 0.4s ease;
-        }
-
-        .btn-water {
-            background-color: var(--yellow-main);
-            color: var(--bg-dark);
-            border: none;
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-water:disabled {
-            background-color: var(--bg-card);
-            color: var(--text-muted);
-            cursor: not-allowed;
-            border: 1px solid var(--border-color);
-        }
-
-        /* Main App Tabs Bar */
-        .main-tabs-nav {
-            display: flex;
-            gap: 10px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 24px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-        }
-
-        .main-tab-btn {
-            background-color: var(--bg-card);
-            color: var(--text-muted);
-            border: 1px solid var(--border-color);
-            padding: 12px 20px;
-            border-radius: var(--radius-md);
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .main-tab-btn:hover {
-            background-color: var(--bg-card-hover);
-            color: var(--text-light);
-        }
-
-        .main-tab-btn.active {
-            background-color: var(--yellow-main);
-            color: var(--bg-dark);
-            border-color: var(--yellow-main);
-        }
-
-        .tab-badge {
-            background: var(--bg-dark);
-            color: var(--yellow-main);
-            padding: 2px 8px;
-            border-radius: 50px;
-            font-size: 0.75rem;
-        }
-
-        .main-tab-btn.active .tab-badge {
-            background: var(--bg-dark);
-            color: var(--yellow-main);
-        }
-
-        /* Main Layout */
-        main {
-            flex: 1;
-            max-width: 1100px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 24px 20px;
-        }
-
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Standard Controls & Cards */
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .section-title {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: var(--yellow-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn {
-            background-color: var(--yellow-main);
-            color: var(--bg-dark);
-            padding: 10px 18px;
-            border-radius: var(--radius-md);
-            font-weight: 700;
-            font-size: 0.9rem;
-            border: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .btn:hover {
-            background-color: var(--yellow-hover);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-light);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--yellow-main);
-            color: var(--yellow-main);
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 14px;
-            background-color: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            color: var(--text-light);
-            font-size: 0.95rem;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--yellow-main);
-        }
-
-        textarea.form-control {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        .add-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .add-grid { grid-template-columns: 1fr; }
-        }
-
-        .card-box {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-        }
-
-        .vocab-table-wrapper {
-            overflow-x: auto;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            background-color: var(--bg-card);
-        }
-
-        th, td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background-color: #1f2b28;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-        }
-
-        .pos-badge {
-            background-color: var(--yellow-alpha);
-            color: var(--yellow-main);
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 4px;
-            text-transform: lowercase;
-        }
-
-        /* Practice Sub-Tabs */
-        .practice-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-        }
-
-        .p-tab-btn {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .p-tab-btn.active {
-            background-color: var(--yellow-main);
-            color: var(--bg-dark);
-            border-color: var(--yellow-main);
-        }
-
-        .practice-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .flashcard-wrapper {
-            perspective: 1000px;
-            height: 280px;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-
-        .flashcard {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.5s ease;
-            border-radius: var(--radius-lg);
-        }
-
-        .flashcard.flipped {
-            transform: rotateY(180deg);
-        }
-
-        .card-front, .card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: var(--radius-lg);
-            border: 2px solid var(--border-color);
-            background-color: var(--bg-card);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-
-        .card-back {
-            transform: rotateY(180deg);
-            border-color: var(--yellow-main);
-        }
-
-        .quiz-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 28px 20px;
-            box-shadow: var(--shadow);
-        }
-
-        .quiz-question {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        @media (max-width: 500px) {
-            .options-grid { grid-template-columns: 1fr; }
-        }
-
-        .option-btn {
-            background-color: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            color: var(--text-light);
-            padding: 14px;
-            border-radius: var(--radius-md);
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: left;
-        }
-
-        .match-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-        }
-
-        .match-card {
-            background-color: var(--bg-card);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 16px 8px;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: 700;
-            cursor: pointer;
-            min-height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .match-card.selected {
-            border-color: var(--yellow-main);
-            background-color: var(--yellow-alpha);
-            color: var(--yellow-main);
-        }
-
-        .match-card.matched {
-            visibility: hidden;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background-color: var(--yellow-main);
-            color: var(--bg-dark);
-            padding: 12px 20px;
-            border-radius: var(--radius-md);
-            font-weight: 800;
-            z-index: 1000;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 10px;
-            color: var(--text-muted);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocab Garden</title>
+  <style>
+    :root {
+      --bg-dark: #1A2421;
+      --bg-card: #25332f;
+      --accent-yellow: #fdfd96;
+      --text-light: #ffffff;
+      --text-muted: #a3b8b0;
+      --border-color: #364843;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+    }
+
+    /* Plant Widget */
+    .plant-widget {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .plant-status h3 {
+      color: var(--accent-yellow);
+      margin-bottom: 4px;
+    }
+
+    .btn {
+      background-color: var(--accent-yellow);
+      color: var(--bg-dark);
+      border: none;
+      padding: 10px 18px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .btn:disabled {
+      background-color: #4a5d57;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    /* Navigation Tabs */
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      background-color: var(--bg-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      padding: 12px 8px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .tab-btn.active {
+      background-color: var(--accent-yellow);
+      color: var(--bg-dark);
+      border-color: var(--accent-yellow);
+    }
+
+    /* Tab Content Panels */
+    .tab-content {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Forms & Inputs */
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 6px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: #151d1b;
+      color: #fff;
+    }
+
+    /* Vocabulary List Table */
+    .vocab-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    .vocab-table th, .vocab-table td {
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      text-align: left;
+    }
+
+    .vocab-table th {
+      color: var(--accent-yellow);
+    }
+
+    /* Study Cards */
+    .study-box {
+      text-align: center;
+      padding: 30px;
+      border: 2px dashed var(--accent-yellow);
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .study-word {
+      font-size: 28px;
+      color: var(--accent-yellow);
+      margin-bottom: 8px;
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .quiz-btn {
+      background-color: #151d1b;
+      color: #fff;
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .quiz-btn:hover {
+      border-color: var(--accent-yellow);
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Header / Topbar -->
-    <header>
-        <div class="header-container">
-            <div class="logo">
-                <i class="fa-solid fa-seedling"></i>
-                <span>Vocab Garden</span>
-            </div>
+  <div class="container">
+    <!-- Gamified Check-in -->
+    <div class="plant-widget">
+      <div class="plant-status">
+        <h3 id="plantStage">🌱 Gieo mầm (Ngày 1/7)</h3>
+        <p class="text-muted" id="streakText">Chuỗi học tập: 0 ngày liên tiếp</p>
+      </div>
+      <button class="btn" id="waterBtn" onclick="waterPlant()">💧 Tưới Cây</button>
+    </div>
 
-            <!-- Attendance Widget -->
-            <div class="garden-status">
-                <div class="tree-stage">
-                    <span id="treeIcon" class="tree-icon">🌱</span>
-                    <div style="font-size: 0.75rem;">
-                        <div style="font-weight: 700; color: var(--text-light);" id="treeStageName">Mầm Non</div>
-                        <div style="color: var(--text-muted);" id="harvestCountdown">Cần 5 ngày nữa</div>
-                    </div>
-                </div>
-                
-                <div class="progress-bar-container">
-                    <div id="gardenProgress" class="progress-bar-fill"></div>
-                </div>
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('library')">Kho Từ</button>
+      <button class="tab-btn" onclick="switchTab('add')">Thêm Từ</button>
+      <button class="tab-btn" onclick="switchTab('learn')">Học Tập</button>
+      <button class="tab-btn" onclick="switchTab('review')">Cần Ôn Tập</button>
+    </div>
 
-                <div class="streak-info">
-                    <i class="fa-solid fa-fire-flame-curved"></i>
-                    <span id="streakCount">0</span> ngày
-                </div>
+    <!-- Tab 1: Kho Từ Vựng -->
+    <div id="library" class="tab-content active">
+      <h2>Kho Từ Vựng Của Bạn</h2>
+      <table class="vocab-table">
+        <thead>
+          <tr>
+            <th>Từ vựng</th>
+            <th>Loại từ</th>
+            <th>Ý nghĩa</th>
+          </tr>
+        </thead>
+        <tbody id="vocabList"></tbody>
+      </table>
+    </div>
 
-                <button id="btnWater" class="btn-water" onclick="waterGarden()">
-                    <i class="fa-solid fa-droplet"></i> Tưới
-                </button>
-            </div>
+    <!-- Tab 2: Thêm Từ Mới -->
+    <div id="add" class="tab-content">
+      <h2>Thêm Từ Đơn Lẻ</h2>
+      <input type="text" id="singleWord" placeholder="Từ vựng (Word)" />
+      <input type="text" id="singlePos" placeholder="Loại từ (Part of Speech, vd: n, v, adj)" />
+      <input type="text" id="singleMeaning" placeholder="Ý nghĩa (Meaning)" />
+      <button class="btn" onclick="addSingleWord()">Lưu Từ</button>
+
+      <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;" />
+
+      <h2>Import Nhanh Hàng Loạt</h2>
+      <p style="color: var(--text-muted); font-size: 13px; margin: 4px 0 8px;">
+        Cú pháp: <code>Word, Part of Speech, Meaning;</code>
+      </p>
+      <textarea id="bulkInput" rows="4" placeholder="apple, n, quả táo; run, v, chạy;"></textarea>
+      <button class="btn" onclick="importBulkWords()">Nhập Hàng Loạt</button>
+    </div>
+
+    <!-- Tab 3: Learn -->
+    <div id="learn" class="tab-content">
+      <h2>Luyện Tập Trắc Nghiệm</h2>
+      <div id="studyArea">
+        <div class="study-box">
+          <div class="study-word" id="learnTargetWord">Loading...</div>
+          <p id="learnTargetPos" style="color: var(--text-muted);"></p>
         </div>
-    </header>
+        <div class="quiz-options" id="quizOptions"></div>
+      </div>
+    </div>
 
-    <main>
-        <!-- Horizontal Tabs Directly on Dashboard -->
-        <nav class="main-tabs-nav">
-            <button class="main-tab-btn active" onclick="switchMainTab('vaultTab')">
-                <i class="fa-solid fa-book-bookmark"></i> Kho Từ Vựng 
-                <span id="vaultCountBadge" class="tab-badge">0</span>
-            </button>
-            <button class="main-tab-btn" onclick="switchMainTab('addTab')">
-                <i class="fa-solid fa-plus"></i> Thêm Từ Mới
-            </button>
-            <button class="main-tab-btn" onclick="switchMainTab('learnTab')">
-                <i class="fa-solid fa-brain"></i> Luyện Tập (Learn)
-            </button>
-            <button class="main-tab-btn" onclick="switchMainTab('reviewTab')">
-                <i class="fa-solid fa-clock-rotate-left"></i> Cần Ôn Hôm Nay 
-                <span id="dueCountBadge" class="tab-badge" style="color: var(--danger);">0</span>
-            </button>
-        </nav>
+    <!-- Tab 4: Cần Ôn Tập -->
+    <div id="review" class="tab-content">
+      <h2>Từ Cần Ôn Tập Hôm Nay</h2>
+      <div id="reviewContent">
+        <p style="color: var(--text-muted); margin: 12px 0;">
+          Hệ thống sẽ lọc các từ cần ôn dựa trên chu kỳ lặp lại ngắt quãng (Spaced Repetition).
+        </p>
+        <button class="btn" onclick="switchTab('learn')">Bắt Đầu Ôn Tập Ngay</button>
+      </div>
+    </div>
+  </div>
 
-        <!-- TAB 1: KHO TỪ VỰNG -->
-        <div id="vaultTab" class="tab-content active">
-            <div class="section-header">
-                <div class="section-title"><i class="fa-solid fa-book-bookmark"></i> Danh Sách Từ Vựng</div>
-                <button class="btn btn-outline" onclick="exportData()"><i class="fa-solid fa-download"></i> Export Data</button>
-            </div>
+  <script>
+    // Local Data Store
+    let vocabList = JSON.parse(localStorage.getItem('vocab_list')) || [
+      { word: "resilient", pos: "adj", meaning: "kiên cường, có khả năng phục hồi" },
+      { word: "cultivate", pos: "v", meaning: "gieo trồng, trau dồi" }
+    ];
 
-            <div style="margin-bottom: 16px;">
-                <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm từ hoặc nghĩa..." oninput="renderVault()">
-            </div>
+    let gardenState = JSON.parse(localStorage.getItem('garden_state')) || {
+      streak: 0,
+      lastCheckin: null,
+      stage: 1
+    };
 
-            <div class="vocab-table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Từ vựng</th>
-                            <th>Loại</th>
-                            <th>Nghĩa</th>
-                            <th>Cấp</th>
-                            <th>Lịch ôn</th>
-                            <th>Xóa</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vaultTableBody"></tbody>
-                </table>
-            </div>
-        </div>
+    // Tab Switching Logic
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
 
-        <!-- TAB 2: THÊM TỪ MỚI -->
-        <div id="addTab" class="tab-content">
-            <div class="section-title" style="margin-bottom: 16px;"><i class="fa-solid fa-plus"></i> Thêm Từ Vựng</div>
-            <div class="add-grid">
-                <div class="card-box">
-                    <h3 style="color: var(--yellow-main); margin-bottom: 14px;"><i class="fa-solid fa-pen"></i> Nhập Thủ Công</h3>
-                    <form id="addSingleForm">
-                        <div class="form-group">
-                            <label>Từ vựng (Word):</label>
-                            <input type="text" id="singleWord" class="form-control" placeholder="ví dụ: Procrastinate" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Loại từ (Part of Speech):</label>
-                            <select id="singlePos" class="form-control">
-                                <option value="noun">noun (danh từ)</option>
-                                <option value="verb" selected>verb (động từ)</option>
-                                <option value="adjective">adjective (tính từ)</option>
-                                <option value="adverb">adverb (trạng từ)</option>
-                                <option value="phrase">phrase (cụm từ)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Định nghĩa (Meaning):</label>
-                            <input type="text" id="singleMeaning" class="form-control" placeholder="ví dụ: Trì hoãn" required>
-                        </div>
-                        <button type="submit" class="btn" style="width: 100%;"><i class="fa-solid fa-floppy-disk"></i> Lưu Từ</button>
-                    </form>
-                </div>
+      if (tabId === 'library') renderLibrary();
+      if (tabId === 'learn') renderQuiz();
+    }
 
-                <div class="card-box">
-                    <h3 style="color: var(--yellow-main); margin-bottom: 14px;"><i class="fa-solid fa-bolt"></i> Import Hàng Loạt</h3>
-                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Định dạng: <code>Từ, Loại từ, Nghĩa</code> (Mỗi từ 1 dòng)</p>
-                    <form id="addBulkForm">
-                        <div class="form-group">
-                            <textarea id="bulkText" class="form-control" placeholder="Accommodate, verb, Cung cấp chỗ ở&#10;Comprehensive, adjective, Toàn diện" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-outline" style="width: 100%;"><i class="fa-solid fa-file-import"></i> Bắt đầu Import</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+    // Gamification Logic
+    function renderGarden() {
+      const today = new Date().toDateString();
+      const isChecked = gardenState.lastCheckin === today;
+      
+      document.getElementById('streakText').innerText = `Chuỗi học tập: ${gardenState.streak} ngày liên tiếp`;
+      document.getElementById('plantStage').innerText = `🌱 Cây Cấp ${gardenState.stage}/7 ${gardenState.stage === 7 ? '(Sẵn sàng thu hoạch 🎉)' : ''}`;
+      
+      const btn = document.getElementById('waterBtn');
+      btn.disabled = isChecked;
+      btn.innerText = isChecked ? "Đã Tưới Hôm Nay" : "💧 Tưới Cây";
+    }
 
-        <!-- TAB 3: LUYỆN TẬP -->
-        <div id="learnTab" class="tab-content">
-            <div class="practice-tabs">
-                <button class="p-tab-btn active" onclick="setPracticeMode(event, 'flashcard')"><i class="fa-solid fa-clone"></i> Flashcard</button>
-                <button class="p-tab-btn" onclick="setPracticeMode(event, 'mcq')"><i class="fa-solid fa-list-check"></i> Trắc Nghiệm</button>
-                <button class="p-tab-btn" onclick="setPracticeMode(event, 'spelling')"><i class="fa-solid fa-keyboard"></i> Gõ Từ</button>
-                <button class="p-tab-btn" onclick="setPracticeMode(event, 'fill')"><i class="fa-solid fa-pen-to-square"></i> Điền Khuyết</button>
-                <button class="p-tab-btn" onclick="setPracticeMode(event, 'match')"><i class="fa-solid fa-puzzle-piece"></i> Nối Từ</button>
-            </div>
-            <div class="practice-container" id="practiceContainer"></div>
-        </div>
+    function waterPlant() {
+      const today = new Date().toDateString();
+      gardenState.streak += 1;
+      gardenState.stage = gardenState.stage >= 7 ? 1 : gardenState.stage + 1;
+      gardenState.lastCheckin = today;
+      
+      localStorage.setItem('garden_state', JSON.stringify(gardenState));
+      renderGarden();
+    }
 
-        <!-- TAB 4: CẦN ÔN HÔM NAY -->
-        <div id="reviewTab" class="tab-content">
-            <div class="practice-container" id="reviewContainer"></div>
-        </div>
-    </main>
+    // Vocabulary Operations
+    function renderLibrary() {
+      const tbody = document.getElementById('vocabList');
+      tbody.innerHTML = vocabList.map(item => `
+        <tr>
+          <td><strong>${item.word}</strong></td>
+          <td><em>${item.pos}</em></td>
+          <td>${item.meaning}</td>
+        </tr>
+      `).join('');
+    }
 
-    <div id="toast" class="toast">Thông báo</div>
+    function addSingleWord() {
+      const word = document.getElementById('singleWord').value.trim();
+      const pos = document.getElementById('singlePos').value.trim();
+      const meaning = document.getElementById('singleMeaning').value.trim();
 
-    <script>
-        const INTERVALS = [1, 3, 7, 14, 30, 60];
-        
-        let vocabList = JSON.parse(localStorage.getItem('vg_vocab_list')) || [
-            { id: 1, word: 'Procrastinate', pos: 'verb', meaning: 'Trì hoãn công việc', level: 0, nextReview: getTodayStr() },
-            { id: 2, word: 'Accommodate', pos: 'verb', meaning: 'Đáp ứng nhu cầu, chỗ ở', level: 1, nextReview: getTodayStr() },
-            { id: 3, word: 'Comprehensive', pos: 'adjective', meaning: 'Toàn diện, bao quát', level: 2, nextReview: '2026-12-31' }
-        ];
+      if (!word || !meaning) return alert('Vui lòng nhập từ và ý nghĩa');
 
-        let gardenState = JSON.parse(localStorage.getItem('vg_garden_state')) || {
-            streak: 0,
-            lastWatered: '',
-            waterCount: 0
-        };
+      vocabList.push({ word, pos, meaning });
+      saveAndResetAddForm();
+    }
 
-        let currentPracticeMode = 'flashcard';
-        let practiceIndex = 0;
-        let matchSelected = null;
+    function importBulkWords() {
+      const rawText = document.getElementById('bulkInput').value;
+      const entries = rawText.split(';').map(e => e.trim()).filter(e => e.length > 0);
 
-        function getTodayStr() {
-            return new Date().toISOString().split('T')[0];
+      entries.forEach(entry => {
+        const parts = entry.split(',').map(p => p.trim());
+        if (parts.length >= 3) {
+          vocabList.push({ word: parts[0], pos: parts[1], meaning: parts[2] });
         }
+      });
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2200);
-        }
+      saveAndResetAddForm();
+    }
 
-        function saveData() {
-            localStorage.setItem('vg_vocab_list', JSON.stringify(vocabList));
-            localStorage.setItem('vg_garden_state', JSON.stringify(gardenState));
-            updateBadgesAndHeader();
-        }
+    function saveAndResetAddForm() {
+      localStorage.setItem('vocab_list', JSON.stringify(vocabList));
+      document.getElementById('singleWord').value = '';
+      document.getElementById('singlePos').value = '';
+      document.getElementById('singleMeaning').value = '';
+      document.getElementById('bulkInput').value = '';
+      alert('Đã lưu thành công!');
+    }
 
-        // Chuyển Tab trên Header
-        function switchMainTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.main-tab-btn').forEach(btn => btn.classList.remove('active'));
+    // Quiz Generation
+    function renderQuiz() {
+      if (vocabList.length < 2) {
+        document.getElementById('studyArea').innerHTML = "<p>Cần ít nhất 2 từ vựng để bắt đầu kiểm tra.</p>";
+        return;
+      }
 
-            const targetContent = document.getElementById(tabId);
-            if(targetContent) targetContent.classList.add('active');
+      const randomTarget = vocabList[Math.floor(Math.random() * vocabList.length)];
+      document.getElementById('learnTargetWord').innerText = randomTarget.word;
+      document.getElementById('learnTargetPos').innerText = `(${randomTarget.pos})`;
 
-            const activeBtn = Array.from(document.querySelectorAll('.main-tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
-            if(activeBtn) activeBtn.classList.add('active');
+      // Pick distractor choices
+      let choices = [randomTarget.meaning];
+      while (choices.length < Math.min(4, vocabList.length)) {
+        let randMeaning = vocabList[Math.floor(Math.random() * vocabList.length)].meaning;
+        if (!choices.includes(randMeaning)) choices.push(randMeaning);
+      }
+      choices.sort(() => Math.random() - 0.5);
 
-            if(tabId === 'vaultTab') renderVault();
-            if(tabId === 'learnTab') initPractice();
-            if(tabId === 'reviewTab') initReview();
-        }
+      const optionsContainer = document.getElementById('quizOptions');
+      optionsContainer.innerHTML = choices.map(choice => `
+        <button class="quiz-btn" onclick="checkAnswer('${choice}', '${randomTarget.meaning}')">${choice}</button>
+      `).join('');
+    }
 
-        // Attendance & Header
-        function updateBadgesAndHeader() {
-            document.getElementById('vaultCountBadge').innerText = vocabList.length;
-            const today = getTodayStr();
-            const dueList = vocabList.filter(v => v.nextReview <= today);
-            document.getElementById('dueCountBadge').innerText = dueList.length;
+    function checkAnswer(selected, correct) {
+      if (selected === correct) {
+        alert('Chính xác! 🌟');
+      } else {
+        alert(`Chưa đúng! Đáp án đúng là: ${correct}`);
+      }
+      renderQuiz();
+    }
 
-            const btnWater = document.getElementById('btnWater');
-            if (gardenState.lastWatered === today) {
-                btnWater.disabled = true;
-                btnWater.innerHTML = '<i class="fa-solid fa-check"></i> Đã Tưới';
-            } else {
-                btnWater.disabled = false;
-                btnWater.innerHTML = '<i class="fa-solid fa-droplet"></i> Tưới';
-            }
-
-            document.getElementById('streakCount').innerText = gardenState.streak;
-            const stage = Math.floor(gardenState.waterCount / 5);
-            const progress = (gardenState.waterCount % 5) * 20;
-            const daysLeft = 5 - (gardenState.waterCount % 5);
-
-            document.getElementById('gardenProgress').style.width = progress + '%';
-            document.getElementById('harvestCountdown').innerText = `Cần ${daysLeft} ngày nữa`;
-
-            const stagesIcons = ['🌱', '🌿', '🪴', '🌳', '🍎'];
-            const stagesNames = ['Hạt Mầm', 'Cây Con', 'Cây Lớn', 'Cổ Thụ', 'Trái Chín'];
-            const currentStageIdx = Math.min(stage, stagesIcons.length - 1);
-            document.getElementById('treeIcon').innerText = stagesIcons[currentStageIdx];
-            document.getElementById('treeStageName').innerText = stagesNames[currentStageIdx];
-        }
-
-        function waterGarden() {
-            const today = getTodayStr();
-            if (gardenState.lastWatered === today) return;
-
-            gardenState.waterCount += 1;
-            gardenState.streak += 1;
-            gardenState.lastWatered = today;
-
-            saveData();
-            showToast('🎉 Điểm danh tưới cây thành công!');
-        }
-
-        // Tab Vault
-        function renderVault() {
-            const searchEl = document.getElementById('searchInput');
-            const query = searchEl ? searchEl.value.toLowerCase() : '';
-            const tbody = document.getElementById('vaultTableBody');
-
-            const filtered = vocabList.filter(v => 
-                v.word.toLowerCase().includes(query) || v.meaning.toLowerCase().includes(query)
-            );
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">Chưa có từ vựng nào.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map(v => `
-                <tr>
-                    <td><strong style="color: var(--yellow-main);">${v.word}</strong></td>
-                    <td><span class="pos-badge">${v.pos || 'n/a'}</span></td>
-                    <td>${v.meaning}</td>
-                    <td><b>Lvl ${v.level}</b></td>
-                    <td style="color: var(--text-muted); font-size:0.85rem;">${v.nextReview}</td>
-                    <td>
-                        <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="deleteWord(${v.id})">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function deleteWord(id) {
-            if (confirm('Xóa từ vựng này khỏi kho?')) {
-                vocabList = vocabList.filter(v => v.id !== id);
-                saveData();
-                renderVault();
-            }
-        }
-
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(vocabList));
-            const dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", "vocab_garden.json");
-            document.body.appendChild(dlAnchor);
-            dlAnchor.click();
-            dlAnchor.remove();
-        }
-
-        // Add Forms
-        document.getElementById('addSingleForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            vocabList.push({
-                id: Date.now(),
-                word: document.getElementById('singleWord').value.trim(),
-                pos: document.getElementById('singlePos').value,
-                meaning: document.getElementById('singleMeaning').value.trim(),
-                level: 0,
-                nextReview: getTodayStr()
-            });
-            saveData();
-            this.reset();
-            showToast('Đã thêm từ mới!');
-        });
-
-        document.getElementById('addBulkForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const text = document.getElementById('bulkText').value.trim();
-            const lines = text.split('\n');
-            let count = 0;
-            lines.forEach(line => {
-                const parts = line.split(',');
-                if (parts.length >= 3) {
-                    vocabList.push({
-                        id: Date.now() + Math.random(),
-                        word: parts[0].trim(),
-                        pos: parts[1].trim().toLowerCase(),
-                        meaning: parts[2].trim(),
-                        level: 0,
-                        nextReview: getTodayStr()
-                    });
-                    count++;
-                }
-            });
-            saveData();
-            this.reset();
-            showToast(`Đã thêm ${count} từ mới!`);
-        });
-
-        // Tab Learn (Practice)
-        function setPracticeMode(e, mode) {
-            currentPracticeMode = mode;
-            document.querySelectorAll('.p-tab-btn').forEach(btn => btn.classList.remove('active'));
-            if(e && e.currentTarget) e.currentTarget.classList.add('active');
-            practiceIndex = 0;
-            initPractice();
-        }
-
-        function initPractice() {
-            const container = document.getElementById('practiceContainer');
-            if (vocabList.length === 0) {
-                container.innerHTML = `<div class="empty-state">Kho từ đang trống, hãy thêm từ mới trước!</div>`;
-                return;
-            }
-
-            if (currentPracticeMode === 'flashcard') {
-                const current = vocabList[practiceIndex % vocabList.length];
-                container.innerHTML = `
-                    <div class="flashcard-wrapper" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
-                        <div class="flashcard">
-                            <div class="card-front">
-                                <span class="pos-badge" style="margin-bottom: 12px;">${current.pos}</span>
-                                <h2 style="color:var(--yellow-main); font-size: 2rem;">${current.word}</h2>
-                                <p style="color:var(--text-muted); font-size:0.8rem; margin-top:10px;">(Nhấn để lật mặt sau)</p>
-                            </div>
-                            <div class="card-back">
-                                <h3>${current.meaning}</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button class="btn btn-outline" style="flex:1;" onclick="prevPractice()">Từ trước</button>
-                        <button class="btn" style="flex:1;" onclick="nextPractice()">Từ tiếp</button>
-                    </div>
-                `;
-            } else if (currentPracticeMode === 'mcq') {
-                const current = vocabList[practiceIndex % vocabList.length];
-                let options = [current.meaning];
-                let others = vocabList.filter(v => v.id !== current.id).map(v => v.meaning).sort(() => 0.5 - Math.random());
-                options = options.concat(others.slice(0, 3)).sort(() => 0.5 - Math.random());
-
-                container.innerHTML = `
-                    <div class="quiz-card">
-                        <div class="quiz-question">Nghĩa của từ <span style="color:var(--yellow-main);">'${current.word}'</span> là gì?</div>
-                        <div class="options-grid">
-                            ${options.map(opt => `<button class="option-btn" onclick="checkMCQ(this, ${opt === current.meaning})">${opt}</button>`).join('')}
-                        </div>
-                    </div>
-                `;
-            } else if (currentPracticeMode === 'spelling') {
-                const current = vocabList[practiceIndex % vocabList.length];
-                container.innerHTML = `
-                    <div class="quiz-card">
-                        <div class="quiz-question">Gõ từ tiếng Anh có nghĩa:<br><strong style="color:var(--yellow-main);">${current.meaning}</strong></div>
-                        <form onsubmit="checkSpelling(event, '${current.word}')">
-                            <div class="form-group"><input type="text" id="spellInput" class="form-control" autocomplete="off" required></div>
-                            <button type="submit" class="btn" style="width:100%;">Kiểm Tra</button>
-                        </form>
-                    </div>
-                `;
-            } else if (currentPracticeMode === 'fill') {
-                const current = vocabList[practiceIndex % vocabList.length];
-                container.innerHTML = `
-                    <div class="quiz-card">
-                        <div class="quiz-question">Điền từ: <em>${current.meaning}</em><br><strong style="color:var(--yellow-main); letter-spacing:2px;">${current.word[0]} _ _ _ _</strong></div>
-                        <form onsubmit="checkSpelling(event, '${current.word}')">
-                            <div class="form-group"><input type="text" id="spellInput" class="form-control" autocomplete="off" required></div>
-                            <button type="submit" class="btn" style="width:100%;">Xác Nhận</button>
-                        </form>
-                    </div>
-                `;
-            } else if (currentPracticeMode === 'match') {
-                const sample = vocabList.slice(0, 4);
-                let items = [];
-                sample.forEach(v => {
-                    items.push({ id: v.id, text: v.word });
-                    items.push({ id: v.id, text: v.meaning });
-                });
-                items.sort(() => 0.5 - Math.random());
-
-                container.innerHTML = `
-                    <div class="match-grid">
-                        ${items.map(it => `<div class="match-card" data-id="${it.id}" onclick="handleMatch(this)">${it.text}</div>`).join('')}
-                    </div>
-                `;
-            }
-        }
-
-        function checkMCQ(btn, ok) {
-            if (ok) {
-                showToast('✨ Đúng rồi!');
-                setTimeout(() => nextPractice(), 600);
-            } else {
-                showToast('❌ Sai rồi, thử lại nhé!');
-            }
-        }
-
-        function checkSpelling(e, target) {
-            e.preventDefault();
-            const val = document.getElementById('spellInput').value.trim();
-            if (val.toLowerCase() === target.toLowerCase()) {
-                showToast('🎉 Chuẩn xác!');
-                nextPractice();
-            } else {
-                showToast(`❌ Sai rồi! Đáp án: ${target}`);
-            }
-        }
-
-        function handleMatch(card) {
-            if (card.classList.contains('matched')) return;
-            if (!matchSelected) {
-                matchSelected = card;
-                card.classList.add('selected');
-            } else {
-                if (matchSelected === card) {
-                    card.classList.remove('selected');
-                    matchSelected = null;
-                } else if (matchSelected.dataset.id === card.dataset.id) {
-                    card.classList.add('matched');
-                    matchSelected.classList.add('matched');
-                    matchSelected = null;
-                    showToast('🧩 Khớp thành công!');
-                } else {
-                    matchSelected.classList.remove('selected');
-                    matchSelected = null;
-                    showToast('❌ Chưa khớp!');
-                }
-            }
-        }
-
-        function nextPractice() { practiceIndex++; initPractice(); }
-        function prevPractice() { if(practiceIndex > 0) practiceIndex--; initPractice(); }
-
-        // Tab Review
-        function initReview() {
-            const container = document.getElementById('reviewContainer');
-            const today = getTodayStr();
-            const dueWords = vocabList.filter(v => v.nextReview <= today);
-
-            if (dueWords.length === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-circle-check" style="font-size:2rem; color:var(--success); margin-bottom:10px;"></i><h3>Tuyệt vời! Không còn từ nào cần ôn hôm nay.</h3></div>`;
-                return;
-            }
-
-            const current = dueWords[0];
-            container.innerHTML = `
-                <div class="quiz-card">
-                    <div style="text-align:center; font-size:0.8rem; color:var(--yellow-main); margin-bottom:6px;">ÔN TẬP ĐỊNH KỲ</div>
-                    <h2 style="text-align:center; color:var(--text-light); font-size:1.8rem;">${current.word}</h2>
-                    <div id="reviewAns" style="display:none; margin-top:20px; text-align:center; border-top:1px dashed var(--border-color); padding-top:16px;">
-                        <p style="font-size:1.2rem; margin-bottom:20px; color:var(--yellow-main);">${current.meaning}</p>
-                        <div style="display:flex; gap:10px;">
-                            <button class="btn btn-danger" style="flex:1;" onclick="submitReview(${current.id}, false)">❌ Quên</button>
-                            <button class="btn" style="flex:1; background-color:var(--success); color:white;" onclick="submitReview(${current.id}, true)">✅ Nhớ</button>
-                        </div>
-                    </div>
-                    <button id="btnShowRev" class="btn" style="width:100%; margin-top:20px;" onclick="document.getElementById('reviewAns').style.display='block'; this.style.display='none';">Xem Đáp Án</button>
-                </div>
-            `;
-        }
-
-        function submitReview(id, isRemembered) {
-            const item = vocabList.find(v => v.id === id);
-            const date = new Date();
-            if (isRemembered) {
-                item.level = Math.min(item.level + 1, INTERVALS.length - 1);
-            } else {
-                item.level = 0;
-            }
-            date.setDate(date.getDate() + INTERVALS[item.level]);
-            item.nextReview = date.toISOString().split('T')[0];
-            saveData();
-            initReview();
-        }
-
-        // Tự động load dữ liệu ngay khi khởi chạy
-        document.addEventListener('DOMContentLoaded', () => {
-            updateBadgesAndHeader();
-            renderVault();
-        });
-    </script>
+    // Init
+    renderGarden();
+    renderLibrary();
+  </script>
 </body>
 </html>
