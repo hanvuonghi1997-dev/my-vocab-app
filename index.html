@@ -74,6 +74,7 @@
             font-weight: 800;
             color: var(--yellow-main);
             text-decoration: none;
+            cursor: pointer;
         }
 
         .logo i {
@@ -715,7 +716,7 @@
     <!-- Header / Topbar -->
     <header>
         <div class="header-container">
-            <a href="#" class="logo" onclick="goHome()">
+            <a href="javascript:void(0)" class="logo" onclick="goHome()">
                 <i class="fa-solid fa-seedling"></i>
                 <span>Vocab Garden</span>
             </a>
@@ -763,22 +764,19 @@
                 <div class="nav-card" onclick="switchTab('vaultTab')">
                     <span id="vaultCountBadge" class="badge-count">0</span>
                     <div class="nav-card-icon"><i class="fa-solid fa-book-bookmark"></i></div>
-                    <h3>Kho Từ Vựng</h3>
-                    <p>Xem, quản lý và tìm kiếm tất cả các từ vựng bạn đã lưu trữ.</p>
+                    <h3>Kho Từ Vựng</h3
                 </div>
 
                 <!-- Card 2: Add Word -->
                 <div class="nav-card" onclick="switchTab('addTab')">
                     <div class="nav-card-icon"><i class="fa-solid fa-plus"></i></div>
                     <h3>Thêm Từ Mới</h3>
-                    <p>Thêm từng từ thủ công hoặc nhập hàng loạt nhanh chóng.</p>
                 </div>
 
                 <!-- Card 3: Learn -->
                 <div class="nav-card" onclick="switchTab('learnTab')">
                     <div class="nav-card-icon"><i class="fa-solid fa-brain"></i></div>
-                    <h3>Luyện Tập (Learn)</h3>
-                    <p>Luyện nhớ từ sâu qua Flashcard, Trắc nghiệm, Điền từ & Nối từ.</p>
+                    <h3>Luyện Tập</h3>
                 </div>
 
                 <!-- Card 4: Review Due -->
@@ -787,7 +785,7 @@
                     <div class="nav-card-icon" style="color: var(--danger); background: rgba(232, 106, 106, 0.15);">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                     </div>
-                    <h3>Cần Ôn Tập Today</h3>
+                    <h3>Ôn Tập</h3>
                     <p>Các từ đã đến hạn Spaced Repetition cần ôn lại ngay hôm nay.</p>
                 </div>
             </div>
@@ -810,9 +808,9 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Từ vựng (Word)</th>
-                            <th>Loại từ (POS)</th>
-                            <th>Nghĩa (Meaning)</th>
+                            <th>Từ vựng</th>
+                            <th>Loại từ </th>
+                            <th>Nghĩa</th>
                             <th>Cấp độ (Level)</th>
                             <th>Lịch ôn</th>
                             <th>Hành động</th>
@@ -837,11 +835,11 @@
                     <h3 style="color: var(--yellow-main); margin-bottom: 18px;"><i class="fa-solid fa-pen"></i> Nhập Thủ Công</h3>
                     <form id="addSingleForm">
                         <div class="form-group">
-                            <label>Từ vựng (Word):</label>
+                            <label>Từ vựng:</label>
                             <input type="text" id="singleWord" class="form-control" placeholder="ví dụ: Procrastinate" required>
                         </div>
                         <div class="form-group">
-                            <label>Loại từ (Part of Speech):</label>
+                            <label>Loại từ:</label>
                             <select id="singlePos" class="form-control">
                                 <option value="noun">noun (danh từ)</option>
                                 <option value="verb" selected>verb (động từ)</option>
@@ -851,31 +849,28 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Định nghĩa / Nghĩa (Meaning):</label>
+                            <label>Nghĩa:</label>
                             <input type="text" id="singleMeaning" class="form-control" placeholder="ví dụ: Trì hoãn công việc" required>
                         </div>
-                        <button type="submit" class="btn" style="width: 100%;"><i class="fa-solid fa-floppy-disk"></i> Lưu Từ Này</button>
+                        <button type="submit" class="btn" style="width: 100%;"><i class="fa-solid fa-floppy-disk"></i> Save</button>
                     </form>
                 </div>
 
                 <!-- Batch Bulk Import -->
                 <div class="card-box">
-                    <h3 style="color: var(--yellow-main); margin-bottom: 18px;"><i class="fa-solid fa-bolt"></i> Import Hàng Loạt</h3>
+                    <h3 style="color: var(--yellow-main); margin-bottom: 18px;"><i class="fa-solid fa-bolt"></i> Import Nhanh</h3>
                     
                     <div class="import-box">
                         Cú pháp quy định:<br>
-                        Giữa Word, POS, Meaning phân cách bằng dấu phẩy <code>,</code><br>
+                        Giữa Từ, Từ loại, Meaning phân cách bằng dấu phẩy <code>,</code><br>
                         Mỗi từ nằm trên <code>1 dòng</code>.<br><br>
-                        <strong>Ví dụ mẫu:</strong><br>
-                        <code>Accommodate, verb, Cung cấp chỗ ở</code><br>
-                        <code>Comprehensive, adjective, Toàn diện</code>
                     </div>
 
                     <form id="addBulkForm">
                         <div class="form-group">
                             <textarea id="bulkText" class="form-control" placeholder="Dán danh sách từ vựng của bạn vào đây..." required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-outline" style="width: 100%;"><i class="fa-solid fa-file-import"></i> Import Danh Sách</button>
+                        <button type="submit" class="btn btn-outline" style="width: 100%;"><i class="fa-solid fa-file-import"></i> Import List</button>
                     </form>
                 </div>
             </div>
@@ -889,11 +884,11 @@
 
             <!-- Practice Mode Selector -->
             <div class="practice-tabs">
-                <button class="p-tab-btn active" onclick="setPracticeMode('flashcard')"><i class="fa-solid fa-clone"></i> Flashcard</button>
-                <button class="p-tab-btn" onclick="setPracticeMode('mcq')"><i class="fa-solid fa-list-check"></i> Trắc Nghiệm 4 Đáp Án</button>
-                <button class="p-tab-btn" onclick="setPracticeMode('spelling')"><i class="fa-solid fa-keyboard"></i> Gõ Từ (Chính Tả)</button>
-                <button class="p-tab-btn" onclick="setPracticeMode('fill')"><i class="fa-solid fa-pen-to-square"></i> Điền Vào Chỗ Trống</button>
-                <button class="p-tab-btn" onclick="setPracticeMode('match')"><i class="fa-solid fa-puzzle-piece"></i> Nối Từ (Match)</button>
+                <button class="p-tab-btn active" onclick="setPracticeMode(event, 'flashcard')"><i class="fa-solid fa-clone"></i> Flashcard</button>
+                <button class="p-tab-btn" onclick="setPracticeMode(event, 'mcq')"><i class="fa-solid fa-list-check"></i> Multiple Choice</button>
+                <button class="p-tab-btn" onclick="setPracticeMode(event, 'spelling')"><i class="fa-solid fa-keyboard"></i> Chính Tả</button>
+                <button class="p-tab-btn" onclick="setPracticeMode(event, 'fill')"><i class="fa-solid fa-pen-to-square"></i> Điền Vào Chỗ Trống</button>
+                <button class="p-tab-btn" onclick="setPracticeMode(event, 'match')"><i class="fa-solid fa-puzzle-piece"></i> Match</button>
             </div>
 
             <div class="practice-container" id="practiceContainer">
@@ -974,13 +969,11 @@
 
         // --- DAILY ATTENDANCE & GARDEN LOGIC ---
         function updateBadgesAndHeader() {
-            // Badges
             document.getElementById('vaultCountBadge').innerText = vocabList.length;
             const today = getTodayStr();
             const dueList = vocabList.filter(v => v.nextReview <= today);
             document.getElementById('dueCountBadge').innerText = dueList.length;
 
-            // Garden Widget
             const todayDate = getTodayStr();
             const btnWater = document.getElementById('btnWater');
             if (gardenState.lastWatered === todayDate) {
@@ -993,7 +986,6 @@
 
             document.getElementById('streakCount').innerText = gardenState.streak;
 
-            // Stage Tree logic (harvest every 5 waterings)
             const stage = Math.floor(gardenState.waterCount / 5);
             const progress = (gardenState.waterCount % 5) * 20;
             const daysLeft = 5 - (gardenState.waterCount % 5);
@@ -1002,7 +994,7 @@
             document.getElementById('harvestCountdown').innerText = `Cần ${daysLeft} ngày nữa để thu hoạch`;
 
             const stagesIcons = ['🌱', '🌿', '🪴', '🌳', '🍎'];
-            const stagesNames = ['Hạt Mầm', 'Cây Con', 'Cây Phát Triển', 'Cây Cổ Thụ', 'Cây Trái Chín'];
+            const stagesNames = ['Hạt Mầm', 'Cây Con', 'Cây Phát Triển', 'Cây Cổ Thụ', 'Trái Chín'];
             
             const currentStageIdx = Math.min(stage, stagesIcons.length - 1);
             document.getElementById('treeIcon').innerText = stagesIcons[currentStageIdx];
@@ -1018,7 +1010,7 @@
             gardenState.lastWatered = today;
 
             saveData();
-            showToast('🎉 Bạn đã tưới nước điểm danh thành công!');
+            showToast('🎉 Bạn đã tưới nước thành công!');
         }
 
         // --- TAB 1: VAULT MANAGEMENT ---
@@ -1092,8 +1084,7 @@
         document.getElementById('addBulkForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const text = document.getElementById('bulkText').value.trim();
-            const lines = text.split('
-');
+            const lines = text.split('\n');
             let addedCount = 0;
 
             lines.forEach(line => {
@@ -1117,10 +1108,12 @@
         });
 
         // --- TAB 3: LEARN PRACTICE ENGINE ---
-        function setPracticeMode(mode) {
+        function setPracticeMode(e, mode) {
             currentPracticeMode = mode;
             document.querySelectorAll('.p-tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (e && e.currentTarget) {
+                e.currentTarget.classList.add('active');
+            }
             practiceIndex = 0;
             initPractice();
         }
@@ -1167,7 +1160,6 @@
             const current = vocabList[practiceIndex % vocabList.length];
             let options = [current.meaning];
             
-            // Random wrong options
             let otherMeanings = vocabList.filter(v => v.id !== current.id).map(v => v.meaning);
             otherMeanings = otherMeanings.sort(() => 0.5 - Math.random());
             options = options.concat(otherMeanings.slice(0, 3));
@@ -1179,7 +1171,7 @@
                     <div class="quiz-question">Từ <span style="color: var(--yellow-main);">'${current.word}'</span> có nghĩa là gì?</div>
                     <div class="options-grid">
                         ${options.map(opt => `
-                            <button class="option-btn" onclick="checkMCQ(this, '${opt === current.meaning}')">${opt}</button>
+                            <button class="option-btn" onclick="checkMCQ(this, ${opt === current.meaning})">${opt}</button>
                         `).join('')}
                     </div>
                 </div>
@@ -1187,7 +1179,7 @@
         }
 
         function checkMCQ(btn, isCorrect) {
-            if (isCorrect === 'true') {
+            if (isCorrect) {
                 btn.classList.add('correct');
                 showToast('✨ Chính xác!');
                 setTimeout(() => nextPractice(), 1000);
@@ -1273,13 +1265,11 @@
                     card.classList.remove('selected');
                     matchSelected = null;
                 } else if (matchSelected.dataset.id === card.dataset.id) {
-                    // Match Success
                     card.classList.add('matched');
                     matchSelected.classList.add('matched');
                     matchSelected = null;
                     showToast('🧩 Ghép đúng!');
                 } else {
-                    // Match Failed
                     matchSelected.classList.remove('selected');
                     matchSelected = null;
                     showToast('❌ Ghép sai rồi!');
@@ -1359,7 +1349,9 @@
         }
 
         // --- INIT APP ---
-        updateBadgesAndHeader();
+        document.addEventListener('DOMContentLoaded', () => {
+            updateBadgesAndHeader();
+        });
     </script>
 </body>
 </html>
