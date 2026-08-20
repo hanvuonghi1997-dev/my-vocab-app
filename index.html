@@ -26,7 +26,7 @@
 <button class="tab" data-tab="review"><i class="fa-solid fa-rotate"></i> Ôn tập <span class="badge" id="reviewBadge">0</span></button>
 </nav>
 <section class="tab-content active" id="tab-vault">
-<div class="page-title"><h2>📚 Kho từ vựng</h2><p>Quản lý toàn bộ vocabulary của bạn.</p></div>
+<div class="page-title"><h2>📚 Kho từ vựng</h2><p>Quản lý toàn bộ từ vựng của bạn.</p></div>
 <div class="dashboard-grid">
 <div class="card stat-card"><div class="stat-icon"><i class="fa-solid fa-book"></i></div><div class="stat-number" id="statTotal">0</div><div class="stat-label">Tổng số từ</div></div>
 <div class="card stat-card"><div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div><div class="stat-number" id="statReview">0</div><div class="stat-label">Cần ôn hôm nay</div></div>
@@ -54,10 +54,10 @@ insight, noun, sự hiểu biết sâu sắc"></textarea><button class="btn btn-
 <div class="review-setup">
 <div><label class="setup-label">Ôn những từ</label><select class="select" id="reviewScope"><option value="due">🔔 Đến lịch hôm nay</option><option value="all">📚 Toàn bộ kho</option><option value="unmastered">🌱 Chưa thuộc</option></select></div>
 <div><label class="setup-label">Số lượng</label><select class="select" id="reviewCount"><option value="5">5 từ</option><option value="10" selected>10 từ</option><option value="20">20 từ</option><option value="50">50 từ</option><option value="all">Tất cả</option></select></div>
-<div class="direction-setting"><label class="setup-label">Ôn với</label><div class="direction-options"><label class="check-option"><input type="radio" name="reviewDirection" value="en-vi" checked><span>Chỉ với Nghĩa</span></label><label class="check-option"><input type="radio" name="reviewDirection" value="vi-en"><span>Chỉ với Từ</span></label><label class="check-option"><input type="radio" name="reviewDirection" value="both"><span>Cả Từ và Nghĩa</span></label></div></div>
+<div class="direction-setting"><label class="setup-label">Ôn tập với</label><div class="direction-options"><label class="check-option"><input type="radio" name="reviewDirection" value="en-vi" checked><span>Nghĩa</span></label><label class="check-option"><input type="radio" name="reviewDirection" value="vi-en"><span>Từ</span></label><label class="check-option"><input type="radio" name="reviewDirection" value="both"><span>Cả Từ và Nghĩa</span></label></div></div>
 <div style="display:flex;align-items:end"><button class="btn btn-primary" id="startReview" style="width:100%"><i class="fa-solid fa-play"></i> Bắt đầu ôn</button></div>
 </div>
-<div class="review-info"><span>Hôm nay có <strong id="reviewDueInfo">0 từ</strong> đến lịch.
+<div class="review-info"><span>Hôm nay có <strong id="reviewDueInfo">0 từ</strong> đến lịch.</div>
 </div></div>
 <div class="card practice" style="margin-top:18px"><div class="card-body" id="reviewArea"></div></div>
 </section>
