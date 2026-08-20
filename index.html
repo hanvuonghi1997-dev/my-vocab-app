@@ -26,7 +26,7 @@
 <button class="tab" data-tab="review"><i class="fa-solid fa-rotate"></i> Ôn tập <span class="badge" id="reviewBadge">0</span></button>
 </nav>
 <section class="tab-content active" id="tab-vault">
-<div class="page-title"><h2>📚 Kho từ vựng</h2><p>Quản lý toàn bộ từ vựng của bạn.</p></div>
+<div class="page-title"><h2>📚 Kho từ vựng</h2><p>Quản lý toàn bộ vocabulary của bạn.</p></div>
 <div class="dashboard-grid">
 <div class="card stat-card"><div class="stat-icon"><i class="fa-solid fa-book"></i></div><div class="stat-number" id="statTotal">0</div><div class="stat-label">Tổng số từ</div></div>
 <div class="card stat-card"><div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div><div class="stat-number" id="statReview">0</div><div class="stat-label">Cần ôn hôm nay</div></div>
@@ -44,20 +44,20 @@ achieve, verb, đạt được
 insight, noun, sự hiểu biết sâu sắc"></textarea><button class="btn btn-primary" id="bulkImportBtn" style="margin-top:15px"><i class="fa-solid fa-file-import"></i> Import tất cả</button></div></div>
 </div></section>
 <section class="tab-content" id="tab-learn">
-<div class="page-title"><h2>🧠 Luyện tập</h2></div>
+<div class="page-title"><h2>🧠 Luyện tập</h2><p>Học từng dạng hoặc dùng Test để tổng ôn. Mỗi câu đúng sẽ complete từ; câu sai sẽ gặp lại.</p></div>
 <div class="mode-switcher"><button class="mode-btn active" data-mode="test"><i class="fa-solid fa-graduation-cap"></i> Test</button><button class="mode-btn" data-mode="flashcard"><i class="fa-solid fa-clone"></i> Flashcard</button><button class="mode-btn" data-mode="mcq"><i class="fa-solid fa-list-check"></i> Trắc nghiệm</button><button class="mode-btn" data-mode="spelling"><i class="fa-solid fa-keyboard"></i> Chính tả</button><button class="mode-btn" data-mode="match"><i class="fa-solid fa-link"></i> Nối từ</button></div>
 <div class="card practice"><div class="card-body" id="practiceArea"></div></div>
 </section>
 <section class="tab-content" id="tab-review">
-<div class="page-title"><h2>🔄 Ôn tập định kỳ</h2></div>
+<div class="page-title"><h2>🔄 Ôn tập định kỳ</h2><p>Review Test: chỉ những từ đến hạn mới xuất hiện. Trả lời đúng sẽ tự động schedule lần ôn tiếp theo.</p></div>
 <div class="card"><div class="card-header"><strong>⚙️ Thiết lập ôn tập</strong><span style="color:var(--muted);font-size:12px">Bạn chọn cách ôn, app lo phần còn lại.</span></div><div class="card-body">
 <div class="review-setup">
 <div><label class="setup-label">Ôn những từ</label><select class="select" id="reviewScope"><option value="due">🔔 Đến lịch hôm nay</option><option value="all">📚 Toàn bộ kho</option><option value="unmastered">🌱 Chưa thuộc</option></select></div>
 <div><label class="setup-label">Số lượng</label><select class="select" id="reviewCount"><option value="5">5 từ</option><option value="10" selected>10 từ</option><option value="20">20 từ</option><option value="50">50 từ</option><option value="all">Tất cả</option></select></div>
-<div class="direction-setting"><label class="setup-label">Ôn tập với</label><div class="direction-options"><label class="check-option"><input type="radio" name="reviewDirection" value="en-vi" checked><span>Nghĩa</span></label><label class="check-option"><input type="radio" name="reviewDirection" value="vi-en"><span>Từ</span></label><label class="check-option"><input type="radio" name="reviewDirection" value="both"><span>Cả Từ và Nghĩa</span></label></div></div>
+<div class="direction-setting"><label class="setup-label">Hướng kiểm tra</label><div class="direction-options"><label class="check-option"><input type="radio" name="reviewDirection" value="en-vi" checked><span>🇬🇧 Word → Meaning</span></label><label class="check-option"><input type="radio" name="reviewDirection" value="vi-en"><span>🇻🇳 Meaning → Word</span></label><label class="check-option"><input type="radio" name="reviewDirection" value="both"><span>🔄 Cả hai hướng</span></label></div></div>
 <div style="display:flex;align-items:end"><button class="btn btn-primary" id="startReview" style="width:100%"><i class="fa-solid fa-play"></i> Bắt đầu ôn</button></div>
 </div>
-<div class="review-info"><span>Hôm nay có <strong id="reviewDueInfo">0 từ</strong> đến lịch.</div>
+<div class="review-info"><span>Hôm nay có <strong id="reviewDueInfo">0 từ</strong> đến lịch.</span><span>✓ Đúng → ôn sau <strong>1 → 3 → 7 → 14 → 30 → 60 ngày</strong></span></div>
 </div></div>
 <div class="card practice" style="margin-top:18px"><div class="card-body" id="reviewArea"></div></div>
 </section>
