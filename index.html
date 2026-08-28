@@ -392,7 +392,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
 table{
     width:100%;
-    min-width:650px;
+    min-width:620px;
     border-collapse:collapse;
 }
 
@@ -415,9 +415,48 @@ tr:hover td{
     background:rgba(255,255,255,.02);
 }
 
+.word-display{
+    display:inline-block;
+}
+
+.word-display.has-pronunciation{
+    cursor:pointer;
+}
+
+.word-display.has-pronunciation:hover .word{
+    text-decoration:underline;
+    text-underline-offset:4px;
+}
+
 .word{
     color:var(--accent);
     font-weight:700;
+}
+
+.inline-pronunciation{
+    margin-top:6px;
+    color:var(--muted);
+    font-size:13px;
+    font-weight:600;
+    line-height:1.35;
+}
+
+.pos-badge{
+    display:inline-flex;
+    margin-left:6px;
+    color:var(--muted);
+    font-size:11px;
+    font-weight:500;
+}
+
+.example-text{
+    color:var(--text);
+    line-height:1.5;
+}
+
+.action-buttons{
+    display:flex;
+    gap:7px;
 }
 
 .cefr{
@@ -428,6 +467,28 @@ tr:hover td{
     background:rgba(253,253,150,.08);
     font-size:11px;
     font-weight:700;
+}
+
+.pos-badge{
+    display:block;
+    width:max-content;
+    margin:6px 0 0;
+    padding:0;
+    color:var(--muted);
+    background:transparent;
+    font-size:12px;
+    font-weight:600;
+    line-height:1.3;
+}
+
+.example-text{
+    color:var(--muted);
+    line-height:1.5;
+}
+
+.action-buttons{
+    display:flex;
+    gap:6px;
 }
 
 /* LEARN */
@@ -794,6 +855,16 @@ tr:hover td{
     font-weight:800;
 }
 
+.review-word-block{
+    font-size:36px;
+    font-weight:800;
+}
+
+.review-word-block .pos-badge{
+    font-size:15px;
+    margin-top:8px;
+}
+
 .review-input{
     max-width:550px;
     margin:auto;
@@ -934,7 +1005,7 @@ tr:hover td{
 
         <div>
             <h1>the first awesome</h1>
-            <small>Your personal vocabulary garden</small>
+            <small>hehe ta là con đàn bà tham zọng</small>
         </div>
     </div>
 
@@ -1099,9 +1170,8 @@ tr:hover td{
 
                         <tr>
                             <th>Từ</th>
-                            <th>Loại từ</th>
                             <th>Nghĩa</th>
-                            <th>CEFR</th>
+                            <th>Example</th>
                             <th>Ôn tiếp theo</th>
                             <th></th>
                         </tr>
@@ -1199,9 +1269,46 @@ tr:hover td{
                     </div>
 
 
-                    <button class="btn btn-primary" type="submit">
+                    <div class="field">
+
+                        <label for="pronunciationInput">
+                            Phát âm
+                        </label>
+
+                        <input
+                            class="input"
+                            id="pronunciationInput"
+                            required
+                            autocomplete="off"
+                            placeholder="e.g. /rɪˈzɪliənt/"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="exampleInput">
+                            Example
+                        </label>
+
+                        <textarea
+                            class="textarea"
+                            id="exampleInput"
+                            style="min-height:110px"
+                            placeholder="e.g. She is resilient in difficult situations."
+                        ></textarea>
+
+                    </div>
+
+
+                    <button class="btn btn-primary" type="submit" id="manualSubmitBtn">
                         <i class="fa-solid fa-plus"></i>
-                        Thêm từ
+                        <span id="manualSubmitText">Thêm từ</span>
+                    </button>
+
+                    <button class="btn btn-secondary" type="button" id="cancelEditBtn" style="display:none;margin-left:8px">
+                        Hủy chỉnh sửa
                     </button>
 
                 </form>
@@ -1224,15 +1331,15 @@ tr:hover td{
                 </p>
 
                 <code style="display:block;margin-bottom:15px;color:var(--accent)">
-                    Từ, Loại từ, Nghĩa
+                    Từ, Loại từ, Nghĩa, Phát âm, Example
                 </code>
 
                 <textarea
                     class="textarea"
                     id="bulkInput"
-                    placeholder="resilient, adjective, kiên cường
-achieve, verb, đạt được
-insight, noun, sự hiểu biết sâu sắc"
+                    placeholder="resilient, adjective, kiên cường, /rɪˈzɪliənt/, She is resilient in difficult situations.
+achieve, verb, đạt được, /əˈtʃiːv/, I want to achieve my goals.
+insight, noun, sự hiểu biết sâu sắc, /ˈɪnsaɪt/, The book gave me valuable insight."
                 ></textarea>
 
                 <button
@@ -1653,6 +1760,10 @@ function normalizeWord(word){
 
         meaning: word.meaning || "",
 
+        example: word.example || "",
+
+        pronunciation: word.pronunciation || "",
+
         cefr:
             word.cefr ||
             detectCEFR(word.word),
@@ -1673,6 +1784,77 @@ function normalizeWord(word){
             word.createdAt ||
             new Date().toISOString()
     };
+}
+
+
+function getPosLabel(pos){
+
+    const labels = {
+        noun:"Noun",
+        verb:"Verb",
+        adjective:"Adjective",
+        adverb:"Adverb",
+        phrase:"Phrase",
+        other:"Other"
+    };
+
+    return labels[pos] || pos || "Other";
+}
+
+
+function renderWordWithPos(word){
+
+    const pos =
+        String(getPosLabel(word.pos) || "")
+            .toLowerCase();
+
+    const pronunciation =
+        String(word.pronunciation || "").trim();
+
+    return `
+        <span
+            class="word-display ${pronunciation ? "has-pronunciation" : ""}"
+            ${pronunciation ? 'data-pronunciation-toggle="true"' : ""}
+            title="${pronunciation ? "Bấm để hiện / ẩn phát âm" : ""}"
+            onclick="${pronunciation ? "event.stopPropagation(); toggleInlinePronunciation(this);" : ""}"
+        >
+            <span class="word">${escapeHTML(word.word)}</span>
+            ${
+                pos
+                    ? `<span class="pos-badge">(${escapeHTML(pos)})</span>`
+                    : ""
+            }
+            ${
+                pronunciation
+                    ? `<span class="inline-pronunciation" style="display:none">${escapeHTML(pronunciation)}</span>`
+                    : ""
+            }
+        </span>
+    `;
+}
+
+
+function toggleInlinePronunciation(element){
+
+    const pronunciation =
+        element.querySelector(".inline-pronunciation");
+
+    if(!pronunciation){
+        return;
+    }
+
+    const hidden =
+        pronunciation.style.display === "none" ||
+        !pronunciation.style.display;
+
+    pronunciation.style.display =
+        hidden ? "block" : "none";
+}
+
+
+function formatWordText(word){
+
+    return `${word.word} (${String(getPosLabel(word.pos) || "").toLowerCase()})`;
 }
 
 
@@ -2179,7 +2361,7 @@ function renderVault(){
 
             <tr>
 
-                <td colspan="6">
+                <td colspan="5">
 
                     <div class="empty">
 
@@ -2212,13 +2394,7 @@ function renderVault(){
                 <tr>
 
                     <td>
-                        <span class="word">
-                            ${escapeHTML(word.word)}
-                        </span>
-                    </td>
-
-                    <td>
-                        ${escapeHTML(word.pos)}
+                        ${renderWordWithPos(word)}
                     </td>
 
                     <td>
@@ -2226,23 +2402,9 @@ function renderVault(){
                     </td>
 
                     <td>
-
-                        ${
-                            word.cefr
-
-                            ? `
-                                <span class="cefr">
-                                    ${escapeHTML(word.cefr)}
-                                </span>
-                            `
-
-                            : `
-                                <span style="color:var(--muted)">
-                                    —
-                                </span>
-                            `
-                        }
-
+                        <span class="example-text">
+                            ${word.example ? escapeHTML(word.example) : "—"}
+                        </span>
                     </td>
 
                     <td
@@ -2268,14 +2430,25 @@ function renderVault(){
 
                     <td>
 
-                        <button
-                            class="btn btn-danger btn-small"
-                            data-delete="${escapeHTML(word.id)}"
-                        >
+                        <div class="action-buttons">
 
-                            <i class="fa-solid fa-trash"></i>
+                            <button
+                                class="btn btn-secondary btn-small"
+                                data-edit="${escapeHTML(word.id)}"
+                                title="Chỉnh sửa"
+                            >
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
 
-                        </button>
+                            <button
+                                class="btn btn-danger btn-small"
+                                data-delete="${escapeHTML(word.id)}"
+                                title="Xóa"
+                            >
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+
+                        </div>
 
                     </td>
 
@@ -2294,7 +2467,9 @@ function renderVault(){
 function addWord(
     word,
     pos,
-    meaning
+    meaning,
+    example = "",
+    pronunciation = ""
 ){
 
     word =
@@ -2306,14 +2481,21 @@ function addWord(
     meaning =
         meaning.trim();
 
+    example =
+        example.trim();
+
+    pronunciation =
+        pronunciation.trim();
+
 
     if(
         !word ||
-        !meaning
+        !meaning ||
+        !pronunciation
     ){
 
         showToast(
-            "Vui lòng nhập đầy đủ thông tin."
+            "Vui lòng nhập đầy đủ từ, nghĩa và phát âm."
         );
 
         return false;
@@ -2350,6 +2532,10 @@ function addWord(
             "other",
 
         meaning,
+
+        example,
+
+        pronunciation,
 
         cefr:
             detectCEFR(word),
@@ -2638,11 +2824,7 @@ function renderFlashcard(
                     <div class="flash-face">
 
                         <div class="flash-word">
-                            ${escapeHTML(word.word)}
-                        </div>
-
-                        <div class="hint">
-                            ${escapeHTML(word.pos)}
+                            ${renderWordWithPos(word)}
                         </div>
 
                         <div class="hint">
@@ -2657,16 +2839,6 @@ function renderFlashcard(
                         <div class="flash-meaning">
                             ${escapeHTML(word.meaning)}
                         </div>
-
-                        ${
-                            word.cefr
-                            ? `
-                                <div class="hint">
-                                    ${escapeHTML(word.cefr)}
-                                </div>
-                            `
-                            : ""
-                        }
 
                     </div>
 
@@ -2760,7 +2932,7 @@ function renderMCQ(
             </div>
 
             <div class="question">
-                ${escapeHTML(word.word)}
+                ${renderWordWithPos(word)}
             </div>
 
             <p style="color:var(--muted)">
@@ -2976,7 +3148,7 @@ function renderSpelling(
         feedback.textContent =
             correct
             ? "✓ Chính xác!"
-            : `✗ Đáp án: ${word.word}`;
+            : `✗ Đáp án: ${formatWordText(word)}`;
 
 
         feedback.className =
@@ -3081,7 +3253,7 @@ function renderTrueFalse(
 
 
             <div class="question">
-                ${escapeHTML(word.word)}
+                ${renderWordWithPos(word)}
             </div>
 
 
@@ -3286,7 +3458,7 @@ function renderMatch(area){
                 word => ({
                     id:word.id,
                     type:"word",
-                    value:word.word
+                    value:formatWordText(word)
                 })
             ),
 
@@ -3857,7 +4029,7 @@ function renderTestMCQ(
     area.innerHTML = `
 
         <div class="question">
-            ${escapeHTML(word.word)}
+            ${renderWordWithPos(word)}
         </div>
 
         <p style="color:var(--muted)">
@@ -4076,7 +4248,7 @@ function renderTestSpelling(
         feedback.textContent =
             correct
             ? "✓ Chính xác!"
-            : `✗ Đáp án: ${word.word}`;
+            : `✗ Đáp án: ${formatWordText(word)}`;
 
 
         feedback.className =
@@ -4174,7 +4346,7 @@ function renderTestTrueFalse(
     area.innerHTML = `
 
         <div class="question">
-            ${escapeHTML(word.word)}
+            ${renderWordWithPos(word)}
         </div>
 
 
@@ -4674,10 +4846,11 @@ function renderReviewQuestion(){
         "word-to-meaning"
     ){
 
-        prompt =
-            escapeHTML(
-                word.word
-            );
+        prompt = `
+            <div class="review-word-block">
+                ${renderWordWithPos(word)}
+            </div>
+        `;
 
     }else{
 
@@ -5597,42 +5770,53 @@ document
             event.preventDefault();
 
 
-            const success =
-                addWord(
+            const wordValue = document.getElementById("wordInput").value;
+            const posValue = document.getElementById("posInput").value;
+            const meaningValue = document.getElementById("meaningInput").value;
+            const exampleValue = document.getElementById("exampleInput").value;
+            const pronunciationValue = document.getElementById("pronunciationInput").value;
 
-                    document.getElementById(
-                        "wordInput"
-                    ).value,
+            let success;
 
-                    document.getElementById(
-                        "posInput"
-                    ).value,
+            if(editingWordId){
 
-                    document.getElementById(
-                        "meaningInput"
-                    ).value
-
+                success = updateWord(
+                    editingWordId,
+                    wordValue,
+                    posValue,
+                    meaningValue,
+                    exampleValue,
+                    pronunciationValue
                 );
 
+                if(success){
+                    cancelEditWord();
+                    showToast("✏️ Đã cập nhật từ vựng!");
+                }
 
-            if(success){
+            }else{
 
-                event.target.reset();
-
-                updateStreak();
-
-                showToast(
-                    "🌱 Đã thêm từ mới!"
+                success = addWord(
+                    wordValue,
+                    posValue,
+                    meaningValue,
+                    exampleValue,
+                    pronunciationValue
                 );
 
-
-                document.getElementById(
-                    "wordInput"
-                ).focus();
+                if(success){
+                    event.target.reset();
+                    updateStreak();
+                    showToast("🌱 Đã thêm từ mới!");
+                    document.getElementById("wordInput").focus();
+                }
             }
 
         }
     );
+
+
+document.getElementById("cancelEditBtn").addEventListener("click", cancelEditWord);
 
 
 /* =========================================================
@@ -5695,9 +5879,11 @@ document
 
                             parts[1],
 
-                            parts
-                                .slice(2)
-                                .join(",")
+                            parts[2],
+
+                            parts[4] || "",
+
+                            parts[3] || ""
 
                         )
                     ){
@@ -5760,6 +5946,90 @@ document
 
 
 /* =========================================================
+   EDIT WORD
+========================================================= */
+
+let editingWordId = null;
+
+
+function startEditWord(id){
+
+    const word = words.find(item => item.id === id);
+
+    if(!word) return;
+
+    editingWordId = id;
+
+    document.getElementById("wordInput").value = word.word;
+    document.getElementById("posInput").value = word.pos || "other";
+    document.getElementById("meaningInput").value = word.meaning;
+    document.getElementById("exampleInput").value = word.example || "";
+    document.getElementById("pronunciationInput").value = word.pronunciation || "";
+
+    document.getElementById("manualSubmitText").textContent = "Lưu thay đổi";
+    document.getElementById("manualSubmitBtn").querySelector("i").className = "fa-solid fa-save";
+    document.getElementById("cancelEditBtn").style.display = "inline-block";
+
+    const addTab = document.querySelector('.tab[data-tab="add"]');
+    if(addTab) addTab.click();
+
+    document.getElementById("wordInput").focus();
+}
+
+
+function cancelEditWord(){
+
+    editingWordId = null;
+
+    document.getElementById("manualForm").reset();
+    document.getElementById("manualSubmitText").textContent = "Thêm từ";
+    document.getElementById("manualSubmitBtn").querySelector("i").className = "fa-solid fa-plus";
+    document.getElementById("cancelEditBtn").style.display = "none";
+}
+
+
+function updateWord(id, word, pos, meaning, example, pronunciation){
+
+    word = word.trim();
+    pos = pos.trim();
+    meaning = meaning.trim();
+    example = example.trim();
+    pronunciation = pronunciation.trim();
+
+    if(!word || !meaning || !pronunciation){
+        showToast("Vui lòng nhập đầy đủ từ, nghĩa và phát âm.");
+        return false;
+    }
+
+    const duplicate = words.some(existing =>
+        existing.id !== id &&
+        existing.word.toLowerCase() === word.toLowerCase()
+    );
+
+    if(duplicate){
+        showToast(`"${word}" đã có trong kho.`);
+        return false;
+    }
+
+    const item = words.find(existing => existing.id === id);
+
+    if(!item) return false;
+
+    item.word = word;
+    item.pos = pos || "other";
+    item.meaning = meaning;
+    item.example = example;
+    item.pronunciation = pronunciation;
+    item.cefr = detectCEFR(word);
+
+    saveWords();
+    renderAll();
+
+    return true;
+}
+
+
+/* =========================================================
    DELETE
 ========================================================= */
 
@@ -5770,6 +6040,14 @@ document
     .addEventListener(
         "click",
         event => {
+
+            const editButton =
+                event.target.closest("[data-edit]");
+
+            if(editButton){
+                startEditWord(editButton.dataset.edit);
+                return;
+            }
 
             const button =
                 event.target.closest(
