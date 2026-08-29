@@ -6315,15 +6315,23 @@ async function signUpUser() {
     }
 
     const {
-        data,
-        error
-    } = await supabaseClient.auth.signUp({
+    data,
+    error
+} = await supabaseClient.auth.signUp({
 
-        email: email,
+    email: email,
 
-        password: password
+    password: password,
 
-    });
+    options: {
+
+        emailRedirectTo:
+            window.location.origin +
+            window.location.pathname
+
+    }
+
+});
 
     if (error) {
 
