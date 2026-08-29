@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="vi">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <head>
+<script>
+const SUPABASE_URL = "https://rntycmfhqzrlmleusmdr.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_Vt6uUxMW5DiJMFmyjUZsoQ_kPlljKXI";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>the first awesome</title>
@@ -993,6 +1006,37 @@ tr:hover td{
 </head>
 
 <body>
+<div id="authScreen">
+
+    <h2>My Vocabulary</h2>
+
+    <input
+        id="authEmail"
+        type="email"
+        placeholder="Email"
+    >
+
+    <input
+        id="authPassword"
+        type="password"
+        placeholder="Mật khẩu"
+    >
+
+    <button onclick="signUpUser()">
+        Đăng ký
+    </button>
+
+    <button onclick="signInUser()">
+        Đăng nhập
+    </button>
+
+    <button onclick="signOutUser()">
+        Đăng xuất
+    </button>
+
+    <p id="authMessage"></p>
+
+</div>
 
 <div class="app">
 
@@ -6251,5 +6295,139 @@ document.addEventListener(
 
 </script>
 
+<script>
+
+async function signUpUser() {
+
+    const email =
+        document.getElementById("authEmail").value.trim();
+
+    const password =
+        document.getElementById("authPassword").value;
+
+    if (!email || !password) {
+
+        showAuthMessage(
+            "Vui lòng nhập email và mật khẩu."
+        );
+
+        return;
+    }
+
+    const {
+        data,
+        error
+    } = await supabaseClient.auth.signUp({
+
+        email: email,
+
+        password: password
+
+    });
+
+    if (error) {
+
+        console.error(error);
+
+        showAuthMessage(
+            error.message
+        );
+
+        return;
+    }
+
+    showAuthMessage(
+        "Đăng ký thành công! Hãy kiểm tra email để xác nhận tài khoản."
+    );
+}
+
+
+function showAuthMessage(message) {
+
+    document.getElementById(
+        "authMessage"
+    ).textContent = message;
+
+}
+
+/* ===== ĐĂNG NHẬP ===== */
+
+async function signInUser() {
+
+    const email =
+        document.getElementById("authEmail").value.trim();
+
+    const password =
+        document.getElementById("authPassword").value;
+
+    if (!email || !password) {
+
+        showAuthMessage(
+            "Vui lòng nhập email và mật khẩu."
+        );
+
+        return;
+    }
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient.auth.signInWithPassword({
+
+            email: email,
+
+            password: password
+
+        });
+
+    if (error) {
+
+        console.error(error);
+
+        showAuthMessage(
+            "Đăng nhập thất bại: " +
+            error.message
+        );
+
+        return;
+    }
+
+    showAuthMessage(
+        "Đăng nhập thành công!"
+    );
+
+    console.log(
+        "User:",
+        data.user
+    );
+
+}
+
+async function signOutUser() {
+
+    const {
+        error
+    } =
+        await supabaseClient.auth.signOut();
+
+    if (error) {
+
+        console.error(error);
+
+        showAuthMessage(
+            error.message
+        );
+
+        return;
+    }
+
+    showAuthMessage(
+        "Đã đăng xuất."
+    );
+
+}
+
+</script>
 </body>
 </html>
