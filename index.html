@@ -6157,7 +6157,8 @@ document
 
             }else{
 
-                success = await addWord(
+                success = await updateWord(
+    editingWordId,
     wordValue,
     posValue,
     meaningValue,
@@ -6312,6 +6313,60 @@ document
 
 let editingWordId = null;
 
+async function updateWord(id, word, pos, meaning, pronunciation, example){
+
+    const { data: { user } } =
+        await supabaseClient.auth.getUser();
+
+    if(!user){
+        showToast("Vui lòng đăng nhập trước.");
+        return false;
+    }
+
+    const { error } =
+        await supabaseClient
+            .from("vocabulary")
+            .update({
+                word: word.trim(),
+                pos: pos.trim() || "other",
+                meaning: meaning.trim(),
+                pronunciation: pronunciation.trim(),
+                example: example.trim()
+            })
+            .eq("id", id)
+            .eq("user_id", user.id);
+
+    if(error){
+        console.error(error);
+        showToast("Không thể lưu thay đổi.");
+        return false;
+    }
+
+    const index =
+        words.findIndex(item => item.id === id);
+
+    if(index !== -1){
+
+        words[index].word =
+            word.trim();
+
+        words[index].pos =
+            pos.trim() || "other";
+
+        words[index].meaning =
+            meaning.trim();
+
+        words[index].pronunciation =
+            pronunciation.trim();
+
+        words[index].example =
+            example.trim();
+    }
+
+    renderAll();
+
+    return true;
+}
 
 function startEditWord(id){
 
@@ -6349,41 +6404,146 @@ function cancelEditWord(){
 }
 
 
-function updateWord(id, word, pos, meaning, example, pronunciation){
+async function updateWord(
+    id,
+    word,
+    pos,
+    meaning,
+    pronunciation,
+    example
+){
 
     word = word.trim();
     pos = pos.trim();
     meaning = meaning.trim();
-    example = example.trim();
     pronunciation = pronunciation.trim();
+    example = example.trim();
+
 
     if(!word || !meaning || !pronunciation){
-        showToast("Vui lòng nhập đầy đủ từ, nghĩa và phát âm.");
+
+        showToast(
+            "Vui lòng nhập đầy đủ từ, nghĩa và phát âm."
+        );
+
         return false;
     }
 
-    const duplicate = words.some(existing =>
-        existing.id !== id &&
-        existing.word.toLowerCase() === word.toLowerCase()
-    );
+
+    const duplicate =
+        words.some(existing =>
+            existing.id !== id &&
+            existing.word.toLowerCase() ===
+            word.toLowerCase()
+        );
+
 
     if(duplicate){
-        showToast(`"${word}" đã có trong kho.`);
+
+        showToast(
+            `"${word}" đã có trong kho.`
+        );
+
         return false;
     }
 
-    const item = words.find(existing => existing.id === id);
 
-    if(!item) return false;
+    const {
+        data: {
+            user
+        }
+    } =
+        await supabaseClient.auth.getUser();
 
-    item.word = word;
-    item.pos = pos || "other";
-    item.meaning = meaning;
-    item.example = example;
-    item.pronunciation = pronunciation;
-    item.cefr = detectCEFR(word);
 
-    saveWords();
+    if(!user){
+
+        showToast(
+            "Vui lòng đăng nhập trước."
+        );
+
+        return false;
+    }
+
+
+    const {
+        error
+    } =
+        await supabaseClient
+            .from("vocabulary")
+            .update({
+
+                word: word,
+
+                pos:
+                    pos || "other",
+
+                meaning: meaning,
+
+                pronunciation:
+                    pronunciation,
+
+                example:
+                    example
+
+            })
+            .eq(
+                "id",
+                id
+            )
+            .eq(
+                "user_id",
+                user.id
+            );
+
+
+    if(error){
+
+        console.error(
+            "Lỗi cập nhật từ:",
+            error
+        );
+
+        showToast(
+            "Không thể lưu thay đổi."
+        );
+
+        return false;
+    }
+
+
+    const item =
+        words.find(
+            existing =>
+                existing.id === id
+        );
+
+
+    if(!item){
+
+        return false;
+    }
+
+
+    item.word =
+        word;
+
+    item.pos =
+        pos || "other";
+
+    item.meaning =
+        meaning;
+
+    item.pronunciation =
+        pronunciation;
+
+    item.example =
+        example;
+
+    item.cefr =
+        detectCEFR(word);
+
+
     renderAll();
 
     return true;
