@@ -6555,20 +6555,23 @@ async function updateWord(
 ========================================================= */
 
 document
-    .getElementById(
-        "vaultTable"
-    )
+    .getElementById("vaultTable")
     .addEventListener(
         "click",
-        event => {
+        async event => {
 
             const editButton =
                 event.target.closest("[data-edit]");
 
             if(editButton){
-                startEditWord(editButton.dataset.edit);
+
+                startEditWord(
+                    editButton.dataset.edit
+                );
+
                 return;
             }
+
 
             const button =
                 event.target.closest(
@@ -6609,6 +6612,55 @@ document
             }
 
 
+            const {
+                data: {
+                    user
+                }
+            } =
+                await supabaseClient.auth.getUser();
+
+
+            if(!user){
+
+                showToast(
+                    "Vui lòng đăng nhập trước."
+                );
+
+                return;
+            }
+
+
+            const {
+                error
+            } =
+                await supabaseClient
+                    .from("vocabulary")
+                    .delete()
+                    .eq(
+                        "id",
+                        id
+                    )
+                    .eq(
+                        "user_id",
+                        user.id
+                    );
+
+
+            if(error){
+
+                console.error(
+                    "Lỗi xóa từ:",
+                    error
+                );
+
+                showToast(
+                    "Không thể xóa từ."
+                );
+
+                return;
+            }
+
+
             words =
                 words.filter(
                     item =>
@@ -6616,9 +6668,8 @@ document
                 );
 
 
-            saveWords();
-
             renderAll();
+
 
             showToast(
                 "Đã xóa từ."
