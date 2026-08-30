@@ -2019,48 +2019,260 @@ let words = [];
    LOAD / SAVE
 ========================================================= */
 
-function saveWords(){
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(words)
-    );
-}
-
-
-function loadWords(){
+async function saveWords(){
 
     try{
 
-        const saved =
-            localStorage.getItem(STORAGE_KEY);
-
-        if(saved){
-
-            const parsed =
-                JSON.parse(saved);
-
-            if(Array.isArray(parsed)){
-
-                words =
-                    parsed.map(normalizeWord);
-
-                return;
+        const {
+            data: {
+                user
             }
+        } =
+            await supabaseClient.auth.getUser();
+
+        if(!user){
+
+            console.warn(
+                "Chưa đăng nhập, không thể lưu dữ liệu."
+            );
+
+            return false;
         }
+
+
+        /*
+         * Xóa dữ liệu cũ của user
+         * rồi ghi lại toàn bộ kho từ hiện tại.
+         *
+         * Cách này giúp code hiện tại
+         * dễ chuyển từ localStorage sang Supabase.
+         */
+
+        const {
+            error: deleteError
+        } =
+            await supabaseClient
+                .from("vocabulary")
+                .delete()
+                .eq(
+                    "user_id",
+                    user.id
+                );
+
+
+        if(deleteError){
+
+            console.error(
+                "Lỗi xóa dữ liệu cũ:",
+                deleteError
+            );
+
+            return false;
+        }
+
+
+        if(!words.length){
+
+            return true;
+        }
+
+
+        const rows =
+            words.map(word => ({
+
+                id:
+                    String(word.id),
+
+                user_id:
+                    user.id,
+
+                word:
+                    word.word || "",
+
+                pos:
+                    word.pos || "other",
+
+                meaning:
+                    word.meaning || "",
+
+                pronunciation:
+                    word.pronunciation || "",
+
+                example:
+                    word.example || "",
+
+                created_at:
+                    word.createdAt ||
+                    new Date().toISOString(),
+
+                next_review:
+                    word.nextReview ||
+                    today(),
+
+                review_stage:
+                    Number(
+                        word.reviewStage || 0
+                    ),
+
+                mastered:
+                    Boolean(
+                        word.mastered
+                    )
+
+            }));
+
+
+        const {
+            error: insertError
+        } =
+            await supabaseClient
+                .from("vocabulary")
+                .insert(rows);
+
+
+        if(insertError){
+
+            console.error(
+                "Lỗi lưu vocabulary:",
+                insertError
+            );
+
+            showToast(
+                "Không thể lưu dữ liệu lên server."
+            );
+
+            return false;
+        }
+
+
+        return true;
 
     }catch(error){
 
-        console.error(error);
+        console.error(
+            "saveWords error:",
+            error
+        );
+
+        return false;
+    }
+
+}
+
+
+async function loadWords(){
+
+    try{
+
+        const {
+            data: {
+                user
+            }
+        } =
+            await supabaseClient.auth.getUser();
+
+
+        if(!user){
+
+            words = [];
+
+            return;
+        }
+
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("vocabulary")
+                .select("*")
+                .eq(
+                    "user_id",
+                    user.id
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: true
+                    }
+                );
+
+
+        if(error){
+
+            console.error(
+                "Lỗi load vocabulary:",
+                error
+            );
+
+            showToast(
+                "Không thể tải kho từ."
+            );
+
+            words = [];
+
+            return;
+        }
+
+
+        words =
+            (data || []).map(row => ({
+
+                id:
+                    row.id,
+
+                word:
+                    row.word || "",
+
+                pos:
+                    row.pos || "other",
+
+                meaning:
+                    row.meaning || "",
+
+                pronunciation:
+                    row.pronunciation || "",
+
+                example:
+                    row.example || "",
+
+                cefr:
+                    "",
+
+                nextReview:
+                    row.next_review ||
+                    today(),
+
+                reviewStage:
+                    Number(
+                        row.review_stage || 0
+                    ),
+
+                mastered:
+                    Boolean(
+                        row.mastered
+                    ),
+
+                createdAt:
+                    row.created_at ||
+                    new Date().toISOString()
+
+            }));
+
+
+    }catch(error){
+
+        console.error(
+            "loadWords error:",
+            error
+        );
+
+        words = [];
 
     }
 
-
-    words = MOCK_DATA;
-
-    saveWords();
 }
-
 
 /* =========================================================
    STREAK
@@ -2508,12 +2720,12 @@ function renderVault(){
    ADD WORD
 ========================================================= */
 
-function addWord(
+async function addWord(
     word,
     pos,
     meaning,
-    example = "",
-    pronunciation = ""
+    pronunciation = "",
+    example = ""
 ){
 
     word =
@@ -2525,11 +2737,11 @@ function addWord(
     meaning =
         meaning.trim();
 
-    example =
-        example.trim();
-
     pronunciation =
         pronunciation.trim();
+
+    example =
+        example.trim();
 
 
     if(
@@ -2565,9 +2777,36 @@ function addWord(
     }
 
 
-    words.push({
+    /* =========================
+       CHECK USER
+    ========================= */
 
-        id:generateId(),
+    const {
+        data: {
+            user
+        }
+    } =
+        await supabaseClient.auth.getUser();
+
+
+    if(!user){
+
+        showToast(
+            "Vui lòng đăng nhập trước."
+        );
+
+        return false;
+    }
+
+
+    /* =========================
+       CREATE WORD
+    ========================= */
+
+    const newWord = {
+
+        id:
+            generateId(),
 
         word,
 
@@ -2577,9 +2816,9 @@ function addWord(
 
         meaning,
 
-        example,
-
         pronunciation,
+
+        example,
 
         cefr:
             detectCEFR(word),
@@ -2587,21 +2826,99 @@ function addWord(
         nextReview:
             today(),
 
-        reviewStage:0,
+        reviewStage:
+            0,
 
-        mastered:false,
+        mastered:
+            false,
 
         createdAt:
             new Date().toISOString()
 
-    });
+    };
 
 
-    saveWords();
+    /* =========================
+       SAVE TO SUPABASE
+    ========================= */
+
+    const {
+        error
+    } =
+        await supabaseClient
+            .from("vocabulary")
+            .insert({
+
+                id:
+                    newWord.id,
+
+                user_id:
+                    user.id,
+
+                word:
+                    newWord.word,
+
+                pos:
+                    newWord.pos,
+
+                meaning:
+                    newWord.meaning,
+
+                pronunciation:
+                    newWord.pronunciation,
+
+                example:
+                    newWord.example,
+
+                created_at:
+                    newWord.createdAt,
+
+                next_review:
+                    newWord.nextReview,
+
+                review_stage:
+                    newWord.reviewStage,
+
+                mastered:
+                    newWord.mastered
+
+            });
+
+
+    if(error){
+
+        console.error(
+            "Lỗi thêm từ vào Supabase:",
+            error
+        );
+
+        showToast(
+            "Không thể lưu từ lên server."
+        );
+
+        return false;
+    }
+
+
+    /* =========================
+       UPDATE LOCAL STATE
+    ========================= */
+
+    words.push(
+        newWord
+    );
+
 
     renderAll();
 
+
+    showToast(
+        `Đã thêm "${word}".`
+    );
+
+
     return true;
+
 }
 
 
@@ -5840,13 +6157,13 @@ document
 
             }else{
 
-                success = addWord(
-                    wordValue,
-                    posValue,
-                    meaningValue,
-                    exampleValue,
-                    pronunciationValue
-                );
+                success = await addWord(
+    wordValue,
+    posValue,
+    meaningValue,
+    pronunciationValue,
+    exampleValue
+);
 
                 if(success){
                     event.target.reset();
