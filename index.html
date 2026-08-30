@@ -2700,19 +2700,24 @@ async function addWord(
             });
 
 
-    if(error){
+if(error){
 
-        console.error(
-            "Lỗi thêm từ vào Supabase:",
-            error
-        );
+    console.error(
+        "LỖI SUPABASE ADD WORD:",
+        error
+    );
 
-        showToast(
-            "Không thể lưu từ lên server."
-        );
+    alert(
+        "SUPABASE ERROR:\n\n" +
+        JSON.stringify(
+            error,
+            null,
+            2
+        )
+    );
 
-        return false;
-    }
+    return false;
+}
 
 
     /* =========================
