@@ -2796,7 +2796,9 @@ function renderVault(){
                             due
                             ? "🔔 Hôm nay"
                             : escapeHTML(
-                                word.nextReview
+                                 formatDate(
+                                    word.nextReview
+                                )
                             )
                         }
 
