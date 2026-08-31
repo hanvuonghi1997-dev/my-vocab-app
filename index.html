@@ -927,6 +927,241 @@ tr:hover td{
     font-size:40px;
 }
 
+
+/* AUTH */
+
+#authScreen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 18px;
+    background:
+        radial-gradient(circle at 50% 0%,rgba(253,253,150,.09),transparent 34%),
+        var(--bg);
+}
+
+.auth-card{
+    width:min(430px,100%);
+    padding:34px;
+    border:1px solid var(--border);
+    border-radius:24px;
+    background:rgba(36,50,46,.94);
+    box-shadow:0 24px 70px rgba(0,0,0,.32);
+}
+
+.auth-logo{
+    width:58px;
+    height:58px;
+    margin:0 auto 20px;
+    display:grid;
+    place-items:center;
+    border-radius:17px;
+    background:var(--accent);
+    color:var(--bg);
+    font-size:25px;
+}
+
+.auth-heading{text-align:center;margin-bottom:28px}
+.auth-heading h2{margin:0 0 8px;font-size:25px}
+.auth-heading p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+
+.auth-field{margin-bottom:17px}
+.auth-field label{display:block;margin-bottom:8px;font-size:13px;font-weight:700}
+
+.auth-input-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+}
+
+.auth-input-wrap > i:first-child{
+    position:absolute;
+    left:14px;
+    color:var(--muted);
+    pointer-events:none;
+}
+
+.auth-input-wrap input{
+    width:100%;
+    height:48px;
+    padding:0 45px 0 42px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    outline:none;
+    color:var(--text);
+    background:#1d2926;
+    transition:.2s;
+}
+
+.auth-input-wrap input:focus{
+    border-color:rgba(253,253,150,.5);
+    box-shadow:0 0 0 3px rgba(253,253,150,.07);
+}
+
+.auth-password-toggle{
+    position:absolute;
+    right:7px;
+    width:36px;
+    height:36px;
+    border:0;
+    border-radius:9px;
+    color:var(--muted);
+    background:transparent;
+}
+
+.auth-primary-btn,.auth-secondary-btn,.auth-logout-btn{
+    width:100%;
+    height:46px;
+    border-radius:12px;
+    font-weight:700;
+    transition:.2s;
+}
+
+.auth-primary-btn{
+    border:0;
+    color:var(--bg);
+    background:var(--accent);
+}
+
+.auth-primary-btn:hover{transform:translateY(-1px);filter:brightness(1.03)}
+
+.auth-secondary-btn{
+    margin-top:10px;
+    border:1px solid var(--border);
+    color:var(--text);
+    background:transparent;
+}
+
+.auth-secondary-btn:hover,.auth-logout-btn:hover{background:rgba(255,255,255,.04)}
+
+.auth-message{
+    min-height:20px;
+    margin:17px 0 0;
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.5;
+}
+
+.auth-status{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:15px;
+    border:1px solid rgba(126,226,168,.2);
+    border-radius:14px;
+    background:rgba(126,226,168,.06);
+}
+
+.auth-status-icon{
+    width:40px;
+    height:40px;
+    flex:0 0 40px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    color:var(--bg);
+    background:var(--success);
+}
+
+.auth-status strong,.auth-status span{display:block}
+.auth-status strong{font-size:14px;margin-bottom:4px}
+.auth-status span{max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:12px}
+
+.auth-sync-note{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    margin:14px 0;
+    padding:12px;
+    border-radius:12px;
+    color:var(--muted);
+    background:rgba(255,255,255,.035);
+    font-size:12px;
+    line-height:1.5;
+}
+
+.auth-sync-note i{color:var(--accent);margin-top:2px}
+
+.auth-logout-btn{
+    border:1px solid rgba(255,127,127,.2);
+    color:var(--danger);
+    background:transparent;
+}
+
+/* ACCOUNT CHIP */
+
+.account-chip{
+    display:none;
+    align-items:center;
+    gap:10px;
+    margin-left:auto;
+    padding:7px 8px 7px 12px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    background:rgba(255,255,255,.035);
+    color:var(--text);
+}
+
+.account-chip.visible{
+    display:flex;
+}
+
+.account-chip-text{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    max-width:220px;
+    min-width:0;
+    font-size:13px;
+    font-weight:700;
+}
+
+.account-chip-text i{
+    color:var(--accent);
+    font-size:12px;
+}
+
+.account-chip-name{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.account-logout{
+    width:30px;
+    height:30px;
+    display:grid;
+    place-items:center;
+    border:1px solid rgba(255,127,127,.18);
+    border-radius:50%;
+    color:var(--danger);
+    background:transparent;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.account-logout:hover{
+    background:rgba(255,127,127,.08);
+}
+
+.app{display:none}
+.app.authenticated{display:block}
+
+@media(max-width:600px){
+    .auth-card{padding:26px 20px}
+
+    .account-chip{
+        margin-left:0;
+        align-self:flex-end;
+    }
+
+    .account-chip-text{
+        max-width:170px;
+    }
+}
+
 /* TOAST */
 
 .toast{
@@ -1008,33 +1243,84 @@ tr:hover td{
 <body>
 <div id="authScreen">
 
-    <h2>My Vocabulary</h2>
+    <div class="auth-card">
 
-    <input
-        id="authEmail"
-        type="email"
-        placeholder="Email"
-    >
+        <div class="auth-logo">
+            <i class="fa-solid fa-book-open"></i>
+        </div>
 
-    <input
-        id="authPassword"
-        type="password"
-        placeholder="Mật khẩu"
-    >
+        <div class="auth-heading" id="authHeading">
+            <h2>My Vocabulary</h2>
+            <p>Đăng nhập để lưu và đồng bộ kho từ vựng của bạn.</p>
+        </div>
 
-    <button onclick="signUpUser()">
-        Đăng ký
-    </button>
+        <div id="authFormArea">
 
-    <button onclick="signInUser()">
-        Đăng nhập
-    </button>
+            <div class="auth-field">
+                <label for="authEmail">Email</label>
+                <div class="auth-input-wrap">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input
+                        id="authEmail"
+                        type="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                    >
+                </div>
+            </div>
 
-    <button onclick="signOutUser()">
-        Đăng xuất
-    </button>
+            <div class="auth-field">
+                <label for="authPassword">Mật khẩu</label>
+                <div class="auth-input-wrap">
+                    <i class="fa-solid fa-lock"></i>
+                    <input
+                        id="authPassword"
+                        type="password"
+                        placeholder="Nhập mật khẩu"
+                        autocomplete="current-password"
+                    >
+                    <button type="button" class="auth-password-toggle" id="authPasswordToggle" aria-label="Hiện mật khẩu">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+            </div>
 
-    <p id="authMessage"></p>
+            <button class="auth-primary-btn" type="button" onclick="signInUser()">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                Đăng nhập
+            </button>
+
+            <button class="auth-secondary-btn" type="button" onclick="signUpUser()">
+                Tạo tài khoản mới
+            </button>
+
+        </div>
+
+        <div id="authLoggedIn" style="display:none;">
+            <div class="auth-status">
+                <div class="auth-status-icon">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <div>
+                    <strong>Đã đăng nhập</strong>
+                    <span id="authUserEmail"></span>
+                </div>
+            </div>
+
+            <div class="auth-sync-note">
+                <i class="fa-solid fa-cloud"></i>
+                <span>Dữ liệu của bạn đang được đồng bộ trên tài khoản này.</span>
+            </div>
+
+            <button class="auth-logout-btn" type="button" onclick="signOutUser()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Đăng xuất
+            </button>
+        </div>
+
+        <p id="authMessage" class="auth-message"></p>
+
+    </div>
 
 </div>
 
@@ -1071,6 +1357,23 @@ tr:hover td{
             </div>
         </div>
 
+    </div>
+
+    <div class="account-chip" id="accountChip">
+        <div class="account-chip-text">
+            <i class="fa-solid fa-circle-user"></i>
+            <span>Hi,</span>
+            <span class="account-chip-name" id="accountChipName">Bạn</span>
+        </div>
+        <button
+            class="account-logout"
+            type="button"
+            onclick="signOutUser()"
+            aria-label="Đăng xuất"
+            title="Đăng xuất"
+        >
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
     </div>
 
 </header>
@@ -6241,171 +6544,201 @@ function showToast(message){
    INIT
 ========================================================= */
 
+async function updateAuthUI(user){
+
+    const authScreen = document.getElementById("authScreen");
+    const authFormArea = document.getElementById("authFormArea");
+    const authLoggedIn = document.getElementById("authLoggedIn");
+    const authHeading = document.getElementById("authHeading");
+    const authUserEmail = document.getElementById("authUserEmail");
+    const app = document.querySelector(".app");
+    const accountChip = document.getElementById("accountChip");
+    const accountChipName = document.getElementById("accountChipName");
+
+    if(user){
+
+        /* Đã đăng nhập: ẩn hoàn toàn màn hình login */
+        authScreen.style.display = "none";
+        app.classList.add("authenticated");
+
+        /* Hiện tài khoản nhỏ ở góc header */
+        accountChip.classList.add("visible");
+
+        const email = user.email || "Tài khoản";
+        const username = email.split("@")[0] || "Bạn";
+
+        accountChipName.textContent = username;
+
+        /* Vẫn giữ dữ liệu email nếu cần dùng ở nơi khác */
+        authUserEmail.textContent = email;
+        authFormArea.style.display = "none";
+        authLoggedIn.style.display = "none";
+
+    }else{
+
+        /* Chưa đăng nhập: hiện màn hình login */
+        authScreen.style.display = "flex";
+        app.classList.remove("authenticated");
+        accountChip.classList.remove("visible");
+
+        authFormArea.style.display = "block";
+        authLoggedIn.style.display = "none";
+        authUserEmail.textContent = "";
+        accountChipName.textContent = "Bạn";
+
+        authHeading.innerHTML = `
+            <h2>My Vocabulary</h2>
+            <p>Đăng nhập để lưu và đồng bộ kho từ vựng của bạn.</p>
+        `;
+    }
+}
+
+async function initializeApp(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    await updateAuthUI(session ? session.user : null);
+
+    if(session){
+        await loadWords();
+        renderAll();
+        renderLearn();
+    }else{
+        words = [];
+    }
+
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        const user = session ? session.user : null;
+        await updateAuthUI(user);
+
+        if(event === "SIGNED_IN" || event === "TOKEN_REFRESHED" ){
+            await loadWords();
+            renderAll();
+            renderLearn();
+        }
+
+        if(event === "SIGNED_OUT"){
+            words = [];
+            renderAll();
+            renderLearn();
+        }
+    });
+}
+
 document.addEventListener(
     "DOMContentLoaded",
-    async () => {
-
-        await loadWords();
-
-        renderAll();
-
-        renderLearn();
-
-    }
+    initializeApp
 );
 
 </script>
 
 <script>
 
-async function signUpUser() {
+async function signUpUser(){
 
-    const email =
-        document.getElementById("authEmail").value.trim();
+    const email = document.getElementById("authEmail").value.trim();
+    const password = document.getElementById("authPassword").value;
 
-    const password =
-        document.getElementById("authPassword").value;
-
-    if (!email || !password) {
-
-        showAuthMessage(
-            "Vui lòng nhập email và mật khẩu."
-        );
-
+    if(!email || !password){
+        showAuthMessage("Vui lòng nhập email và mật khẩu.");
         return;
     }
 
-    const {
-    data,
-    error
-} = await supabaseClient.auth.signUp({
-
-    email: email,
-
-    password: password,
-
-    options: {
-
-        emailRedirectTo:
-        "https://hanvuonghi1997-dev.github.io/my-vocab-app/"
+    if(password.length < 6){
+        showAuthMessage("Mật khẩu cần có ít nhất 6 ký tự.");
+        return;
     }
 
-});
+    const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options:{
+            emailRedirectTo:"https://hanvuonghi1997-dev.github.io/my-vocab-app/"
+        }
+    });
 
-    if (error) {
-
+    if(error){
         console.error(error);
-
-        showAuthMessage(
-            error.message
-        );
-
+        showAuthMessage(error.message);
         return;
     }
 
-    showAuthMessage(
-        "Đăng ký thành công! Hãy kiểm tra email để xác nhận tài khoản."
-    );
+    if(data.session){
+        showAuthMessage("Tạo tài khoản thành công.");
+    }else{
+        showAuthMessage("Tạo tài khoản thành công! Hãy kiểm tra email để xác nhận.");
+    }
 }
 
-
-function showAuthMessage(message) {
-
-    document.getElementById(
-        "authMessage"
-    ).textContent = message;
-
+function showAuthMessage(message){
+    document.getElementById("authMessage").textContent = message;
 }
 
-/* ===== ĐĂNG NHẬP ===== */
+async function signInUser(){
 
-async function signInUser() {
+    const email = document.getElementById("authEmail").value.trim();
+    const password = document.getElementById("authPassword").value;
 
-    const email =
-        document.getElementById("authEmail").value.trim();
-
-    const password =
-        document.getElementById("authPassword").value;
-
-    if (!email || !password) {
-
-        showAuthMessage(
-            "Vui lòng nhập email và mật khẩu."
-        );
-
+    if(!email || !password){
+        showAuthMessage("Vui lòng nhập email và mật khẩu.");
         return;
     }
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+    });
 
-            email: email,
-
-            password: password
-
-        });
-
-    if (error) {
-
+    if(error){
         console.error(error);
-
-        showAuthMessage(
-            "Đăng nhập thất bại: " +
-            error.message
-        );
-
+        showAuthMessage("Đăng nhập thất bại: " + error.message);
         return;
     }
 
-    showAuthMessage(
-        "Đăng nhập thành công!"
-    );
+    /* Ẩn hoàn toàn màn hình đăng nhập ngay sau khi login thành công */
+    await updateAuthUI(data.user);
 
     await loadWords();
-
     renderAll();
-
     renderLearn();
 
-    console.log(
-        "User:",
-        data.user
-    );
-
+    console.log("User:", data.user);
 }
 
-async function signOutUser() {
+async function signOutUser(){
 
-    const {
-        error
-    } =
-        await supabaseClient.auth.signOut();
+    const { error } = await supabaseClient.auth.signOut();
 
-    if (error) {
-
+    if(error){
         console.error(error);
-
-        showAuthMessage(
-            error.message
-        );
-
+        showAuthMessage(error.message);
         return;
     }
 
     words = [];
 
+    /* Hiện lại màn hình đăng nhập sau khi logout */
+    await updateAuthUI(null);
+
     renderAll();
-
     renderLearn();
-
-    showAuthMessage(
-        "Đã đăng xuất."
-    );
-
+    showAuthMessage("Đã đăng xuất.");
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.getElementById("authPasswordToggle");
+    const password = document.getElementById("authPassword");
+
+    if(toggle && password){
+        toggle.addEventListener("click", () => {
+            const isPassword = password.type === "password";
+            password.type = isPassword ? "text" : "password";
+            toggle.innerHTML = isPassword
+                ? '<i class="fa-regular fa-eye-slash"></i>'
+                : '<i class="fa-regular fa-eye"></i>';
+            toggle.setAttribute("aria-label", isPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu");
+        });
+    }
+});
 
 </script>
 </body>
