@@ -1250,8 +1250,8 @@ tr:hover td{
         </div>
 
         <div class="auth-heading" id="authHeading">
-            <h2>My Vocabulary</h2>
-            <p>Đăng nhập để lưu và đồng bộ kho từ vựng của bạn.</p>
+            <h2>the first awesome</h2>
+            <p>Đăng nhập tài khoản.</p>
         </div>
 
         <div id="authFormArea">
@@ -5002,52 +5002,70 @@ function getReviewPool(){
             "reviewScope"
         ).value;
 
-
     let pool = [];
-
 
     if(scope === "due"){
 
-        pool =
-            words.filter(
-                word =>
-                    word.nextReview <=
-                    today()
-            );
+        pool = words.filter(
+            word =>
+                !word.mastered ||
+                word.nextReview <= today()
+        );
 
-    }else if(
-        scope === "unmastered"
-    ){
+        /*
+           Ưu tiên từ quá hạn lâu nhất.
+           Từ chưa mastered nhưng chưa đến hạn
+           vẫn không được ưu tiên hơn từ đã quá hạn.
+        */
+        pool.sort((a,b) => {
 
-        pool =
-            words.filter(
-                word =>
-                    !word.mastered
-            );
+            const aDue =
+                a.nextReview <= today();
+            const bDue =
+                b.nextReview <= today();
+
+            if(aDue && !bDue) return -1;
+            if(!aDue && bDue) return 1;
+
+            const dateA =
+                new Date(a.nextReview || today());
+            const dateB =
+                new Date(b.nextReview || today());
+
+            return dateA - dateB;
+        });
+
+    }else if(scope === "unmastered"){
+
+        pool = words.filter(
+            word => !word.mastered
+        );
+
+        pool.sort((a,b) =>
+            Number(a.reviewStage || 0) -
+            Number(b.reviewStage || 0)
+        );
 
     }else{
 
-        pool =
-            [...words];
-    }
+        pool = [...words];
 
+        pool.sort((a,b) =>
+            Number(a.reviewStage || 0) -
+            Number(b.reviewStage || 0)
+        );
+    }
 
     const count =
         document.getElementById(
             "reviewCount"
         ).value;
 
-
     if(count !== "all"){
-
-        return shuffle(pool).slice(
-            0,
-            Number(count)
-        );
+        return pool.slice(0, Number(count));
     }
 
-
-    return shuffle(pool);
+    return pool;
 }
 
 
@@ -5144,9 +5162,7 @@ function createReviewQuestions(
 
 function startReview(){
 
-    const pool =
-        getReviewPool();
-
+    const pool = getReviewPool();
 
     if(!pool.length){
 
@@ -5157,40 +5173,42 @@ function startReview(){
         return;
     }
 
-
     reviewSession = {
 
-        words:pool,
+        words: pool,
 
-        questions:
-            createReviewQuestions(
-                pool
-            ),
+        questions: createReviewQuestions(pool),
 
-        currentIndex:0,
+        currentIndex: 0,
 
-        completedQuestions:0,
+        completedQuestions: 0,
 
-        wrongQuestions:0,
+        wrongQuestions: 0,
 
-        questionResults:{},
+        questionResults: {},
 
-        startedAt:
-            new Date().toISOString()
+        /* Theo dõi kết quả riêng của từng từ */
+        wordPerformance: {},
+
+        startedAt: new Date().toISOString()
     };
 
+    pool.forEach(word => {
+
+        reviewSession.wordPerformance[word.id] = {
+            correct: 0,
+            wrong: 0
+        };
+
+    });
 
     document.getElementById(
         "reviewSetup"
-    ).style.display =
-        "none";
-
+    ).style.display = "none";
 
     document.getElementById(
         "reviewSession"
-    ).style.display =
-        "block";
-
+    ).style.display = "block";
 
     renderReviewQuestion();
 }
@@ -5828,20 +5846,15 @@ function handleReviewAnswer(
     clickedButton
 ){
 
-    if(
-        clickedButton
-    ){
+    if(clickedButton){
 
         document
             .querySelectorAll(
                 ".option,.tf-btn"
             )
-            .forEach(
-                button =>
-                    button.disabled =
-                        true
-            );
-
+            .forEach(button => {
+                button.disabled = true;
+            });
 
         clickedButton.style.borderColor =
             correct
@@ -5849,70 +5862,73 @@ function handleReviewAnswer(
             : "var(--danger)";
     }
 
-
     const feedback =
         document.getElementById(
             "reviewFeedback"
         );
-
 
     if(feedback){
 
         feedback.textContent =
             correct
             ? "✓ Chính xác!"
-            : "✗ Chưa đúng — sẽ gặp lại.";
-
+            : "✗ Chưa đúng — từ này sẽ được gặp lại.";
 
         feedback.className =
             "feedback " +
-            (
-                correct
-                ? "correct"
-                : "wrong"
-            );
+            (correct ? "correct" : "wrong");
     }
 
+    if(!reviewSession.wordPerformance){
+        reviewSession.wordPerformance = {};
+    }
+
+    if(!reviewSession.wordPerformance[word.id]){
+        reviewSession.wordPerformance[word.id] = {
+            correct: 0,
+            wrong: 0
+        };
+    }
+
+    const performance =
+        reviewSession.wordPerformance[word.id];
 
     if(correct){
 
-        question.completed =
-            true;
+        performance.correct++;
 
-
-        reviewSession.completedQuestions++;
+        if(!question.completed){
+            question.completed = true;
+            reviewSession.completedQuestions++;
+        }
 
     }else{
 
-        question.wrong =
-            true;
-
-
+        performance.wrong++;
         reviewSession.wrongQuestions++;
 
-
         /*
-           Put this question at the end.
-           It must be answered correctly
-           before the review can finish.
+           Không hoàn thành câu sai.
+           Đưa một bản sao xuống cuối queue để gặp lại.
+           Như vậy sai → đúng ngay sau đó không được xem
+           là một lần nhớ tốt cho spaced repetition.
         */
+        question.wrong = true;
 
-        reviewSession.questions.push(
-            question
-        );
+        reviewSession.questions.push({
+            ...question,
+            id: generateId(),
+            completed: false,
+            wrong: false
+        });
     }
 
+    setTimeout(() => {
 
-    setTimeout(
-        () => {
+        reviewSession.currentIndex++;
+        renderReviewQuestion();
 
-            reviewSession.currentIndex++;
-
-            renderReviewQuestion();
-
-        },
-        700
-    );
+    }, 700);
 }
 
 
@@ -5920,88 +5936,97 @@ function handleReviewAnswer(
    FINISH REVIEW
 ========================================================= */
 
-function finishReview(){
+async function finishReview(){
 
-    /*
-       At this point every original
-       question has been answered
-       correctly at least once.
-
-       Update SR only once per word.
-    */
-
-
-    const uniqueWordIds =
-        [...new Set(
+    const uniqueWordIds = [
+        ...new Set(
             reviewSession.words.map(
-                word =>
-                    word.id
+                word => word.id
             )
-        )];
+        )
+    ];
 
+    uniqueWordIds.forEach(wordId => {
 
-    uniqueWordIds.forEach(
-        wordId => {
+        const word =
+            words.find(
+                item => item.id === wordId
+            );
 
-            const word =
-                words.find(
-                    item =>
-                        item.id ===
-                        wordId
-                );
+        if(!word) return;
 
+        const performance =
+            reviewSession.wordPerformance?.[wordId] || {
+                correct: 0,
+                wrong: 0
+            };
 
-            if(!word) return;
+        const wrongCount =
+            Number(performance.wrong || 0);
 
+        const currentStage =
+            Number(word.reviewStage || 0);
 
-            word.mastered =
-                true;
+        let newStage;
+        let interval;
 
+        if(wrongCount === 0){
 
-            word.reviewStage =
-                Math.min(
-                    (word.reviewStage || 0) + 1,
-                    REVIEW_INTERVALS.length
-                );
+            /* Nhớ tốt → tiến lên một stage */
+            newStage = Math.min(
+                currentStage + 1,
+                REVIEW_INTERVALS.length
+            );
 
+            interval =
+                REVIEW_INTERVALS[newStage - 1] ||
+                REVIEW_INTERVALS[REVIEW_INTERVALS.length - 1] ||
+                60;
 
-            const interval =
-                REVIEW_INTERVALS[
-                    word.reviewStage - 1
-                ] || 60;
+        }else if(wrongCount === 1){
 
+            /* Sai một lần → giữ stage, gặp lại sớm */
+            newStage = currentStage;
 
-            word.nextReview =
-                datePlusDays(
-                    interval
-                );
+            interval =
+                currentStage > 0
+                ? REVIEW_INTERVALS[currentStage - 1]
+                : 1;
 
+        }else{
+
+            /* Sai từ 2 lần → tụt stage và review sau 1 ngày */
+            newStage = Math.max(
+                currentStage - 1,
+                0
+            );
+
+            interval = 1;
         }
-    );
 
+        word.reviewStage = newStage;
 
-    saveWords();
+        word.mastered =
+            newStage >= REVIEW_INTERVALS.length &&
+            wrongCount === 0;
 
+        word.nextReview =
+            datePlusDays(interval);
+    });
+
+    await saveWords();
     updateStreak();
-
 
     const totalWords =
         uniqueWordIds.length;
 
-
-    const totalQuestions =
-        reviewSession.questions.length;
-
-
     const wrong =
         reviewSession.wrongQuestions;
-
 
     const session =
         document.getElementById(
             "reviewSession"
         );
-
 
     session.innerHTML = `
 
@@ -6010,26 +6035,20 @@ function finishReview(){
             <div class="review-result">
 
                 <div class="test-icon">
-
                     <i class="fa-solid fa-trophy"></i>
-
                 </div>
-
 
                 <h2>
                     🎉 Ôn tập hoàn thành!
                 </h2>
 
-
                 <div class="review-result-score">
                     ${totalWords}
                 </div>
 
-
                 <p style="color:var(--muted)">
                     từ đã được ôn.
                 </p>
-
 
                 <p style="color:var(--muted)">
                     ${wrong}
@@ -6037,65 +6056,60 @@ function finishReview(){
                     đã được gặp lại.
                 </p>
 
-
                 <button
                     class="btn btn-primary"
                     id="reviewAgainBtn"
                 >
-
                     <i class="fa-solid fa-rotate"></i>
-
                     Ôn tiếp
-
                 </button>
-
 
                 <button
                     class="btn btn-secondary"
                     id="reviewSetupBtn"
                     style="margin-left:8px"
                 >
-
                     Cài đặt lại
-
                 </button>
 
             </div>
 
         </div>
-
     `;
-
 
     document.getElementById(
         "reviewAgainBtn"
     ).onclick = () => {
 
-        reviewSession =
-            null;
-
+        reviewSession = null;
         startReview();
-
     };
-
 
     document.getElementById(
         "reviewSetupBtn"
     ).onclick = () => {
 
-        reviewSession =
-            null;
+        reviewSession = null;
 
-        session.style.display =
-            "none";
+        session.style.display = "none";
 
         document.getElementById(
             "reviewSetup"
-        ).style.display =
-            "block";
-
+        ).style.display = "block";
     };
 }
+
+
+/* =========================================================
+   START REVIEW BUTTON
+========================================================= */
+
+document
+    .getElementById("startReviewBtn")
+    .addEventListener(
+        "click",
+        startReview
+    );
 
 
 /* =========================================================
@@ -6111,12 +6125,6 @@ function renderAll(){
     renderGrowth();
 }
 
-document
-    .getElementById("startReviewBtn")
-    .addEventListener(
-        "click",
-        startReview
-    );
 
 /* =========================================================
    TABS
@@ -6595,8 +6603,8 @@ async function updateAuthUI(user){
         accountChipName.textContent = "Bạn";
 
         authHeading.innerHTML = `
-            <h2>My Vocabulary</h2>
-            <p>Đăng nhập để lưu và đồng bộ kho từ vựng của bạn.</p>
+            <h2>the first awesome</h2>
+            <p>Đăng nhập để sử dụng.</p>
         `;
     }
 }
